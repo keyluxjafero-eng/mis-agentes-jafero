@@ -84,6 +84,19 @@ class Handler(BaseHTTPRequestHandler):
             if not respuesta:
                 respuesta = "Sin respuesta de la IA."
 
+            # Limpiar markdown code blocks que la IA puede añadir
+            import re
+            respuesta = respuesta.strip()
+            respuesta = re.sub(r'^```html\s*', '', respuesta, flags=re.IGNORECASE)
+            respuesta = re.sub(r'^```\s*', '', respuesta)
+            respuesta = re.sub(r'```\s*$', '', respuesta)
+            # Extraer solo desde DOCTYPE si hay texto previo
+            if '<!DOCTYPE' in respuesta:
+                respuesta = respuesta[respuesta.index('<!DOCTYPE'):]
+            elif '<html' in respuesta.lower():
+                respuesta = respuesta[respuesta.lower().index('<html'):]
+            respuesta = respuesta.strip()
+
             print(f"  OK {len(respuesta)} chars")
 
         except urllib.error.HTTPError as e:
