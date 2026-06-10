@@ -6,8 +6,8 @@ import os
 
 API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 PORT    = int(os.getenv("PORT", 10000))
-MODEL = "claude-3-sonnet-20240229"
 
+MODEL = "claude-sonnet-4-20250514"
 class Handler(BaseHTTPRequestHandler):
 
     def do_OPTIONS(self):
