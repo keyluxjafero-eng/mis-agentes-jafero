@@ -37,18 +37,19 @@ const AGENTS = [
     suggestions:["Búscame 5 productos virales","Nicho de mascotas","Productos fitness España"],
     prompt:`Eres ATLAS, el Cazador de Productos Ganadores para tiendas online en España.
 Tienes acceso a búsqueda web. ÚSALA para buscar 6 productos de VERANO España virales ahora (junio 2026).
-Busca: TikTok España trending, Facebook Ads Library España, Google Trends España semana actual.
 
 REGLA ABSOLUTA: devuelve SOLO HTML empezando con <!DOCTYPE html>. Sin texto. Sin backticks.
 
-Sustituye los 6 placeholders con datos REALES de verano España (playa/piscina/calor/camping/mosquitos/deportes agua):
-- NOMBRE_PRODUCTO_N → nombre real del producto
-- CATEGORIA_N / NICHO_N → categoría y nicho real
-- DESCRIPCION_N + DATO_N → descripción con dato concreto y verificado
+SUSTITUYE exactamente los placeholders en las 6 tarjetas con datos REALES de verano España:
+- NOMBRE_PRODUCTO_N → nombre real del producto de verano (playa/piscina/calor/camping/mosquitos)
+- CATEGORIA_N / NICHO_N → categoría real
+- DESCRIPCION_N + DATO_N → descripción con dato verificado en negrita
 - X€ en métricas → precios reales (coste AliExpress, venta x3, ganas = venta-coste)
-- ESTRATEGIA_N → cómo posicionarlo para ser nº1 en ventas
-- COMPLEMENTARIO_N → producto real complementario con precio y % aumento ticket
-- En los href → URL-encode el nombre real del producto
+- ESTRATEGIA_N → cómo posicionarlo para ser nº1
+- COMPLEMENTARIO_N → producto real complementario con precio y % ticket
+
+NO elimines ni omitas ninguna tarjeta. Deben aparecer las 6.
+En los href de cada botón pon el nombre URL-encoded del producto real.
 
 <!DOCTYPE html>
 <html>
@@ -62,19 +63,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .hdr h2{color:#fff;font-size:13px;font-weight:800;margin-bottom:1px}
 .hdr p{color:rgba(255,255,255,.8);font-size:10px}
 .live{background:rgba(255,255,255,.12);border-radius:5px;padding:3px 8px;display:flex;align-items:center;gap:4px;margin-left:auto;flex-shrink:0}
-.dot{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:pulse 1.5s infinite;flex-shrink:0}
+.dot{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:pulse 1.5s infinite}
 .live span{color:#fff;font-size:9px;font-weight:600}
 .info-bar{background:#0c1d35;border-bottom:1px solid rgba(255,255,255,.08);padding:7px 18px;display:flex;gap:14px;flex-wrap:wrap}
 .info-pill{font-size:9px;color:#94a3b8;background:rgba(255,255,255,.05);border-radius:20px;padding:2px 8px}
 .info-pill b{color:#e2e8f0}
-.body{padding:12px 16px}
+.body{padding:12px 16px 0}
 .panel-title{font-size:9.5px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
 .panel-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08)}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .card{background:#0f2240;border-radius:10px;border:1px solid rgba(255,255,255,.1);overflow:hidden;position:relative;display:flex;flex-direction:column}
-.badge{position:absolute;top:9px;right:9px;padding:2px 8px;border-radius:5px;font-size:8.5px;font-weight:900;color:#fff;letter-spacing:.03em}
+.badge{position:absolute;top:9px;right:9px;padding:2px 8px;border-radius:5px;font-size:8.5px;font-weight:900;color:#fff}
 .pname{padding:10px 10px 3px;font-size:13px;font-weight:900;color:#f1f5f9;line-height:1.3;padding-right:88px}
-.pcat{display:inline-block;margin:0 10px 6px;padding:2px 8px;border-radius:20px;font-size:8px;font-weight:700;letter-spacing:.04em}
+.pcat{display:inline-block;margin:0 10px 6px;padding:2px 8px;border-radius:20px;font-size:8px;font-weight:700}
 .pdesc{padding:0 10px 7px;font-size:10px;color:#94a3b8;line-height:1.55;border-bottom:1px solid rgba(255,255,255,.07)}
 .pdesc strong{color:#e2e8f0}
 .metrics{display:grid;grid-template-columns:1fr 1fr 1fr;background:rgba(0,0,0,.2);border-bottom:1px solid rgba(255,255,255,.07)}
@@ -93,16 +94,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .b3-tk{background:#111;color:#fff;border:1px solid #333}
 .b3-fb{background:#1877f2;color:#fff}
 .b3-gg{background:#fff;color:#1a1a1a;border:1px solid #e2e8f0}
+/* CALCULADORA */
+.calc-section{margin:14px 16px 16px;background:#0f2240;border-radius:12px;border:1px solid rgba(255,255,255,.12);overflow:hidden}
+.calc-header{background:linear-gradient(135deg,#1e3a5f,#0f2240);padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.1)}
+.calc-title{font-size:13px;font-weight:800;color:#f1f5f9}
+.calc-sub{font-size:10px;color:#64748b;margin-top:1px}
+.calc-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.calc-inputs{padding:14px 16px;border-right:1px solid rgba(255,255,255,.08)}
+.ci{margin-bottom:9px}
+.ci-lbl{font-size:9px;color:#64748b;font-weight:600;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}
+.ci-inp{width:100%;padding:7px 10px;border-radius:7px;border:1px solid rgba(255,255,255,.12);background:#0b1628;color:#f1f5f9;font-size:13px;font-family:inherit;font-weight:700}
+.ci-inp:focus{outline:none;border-color:#3b82f6}
+.calc-results{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.cr-main{background:rgba(0,0,0,.2);border-radius:10px;padding:14px;text-align:center}
+.cr-label{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.cr-val{font-size:30px;font-weight:900;color:#22c55e}
+.cr-sub{font-size:10px;color:#64748b;margin-top:2px}
+.cr-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cr-item{background:rgba(0,0,0,.2);border-radius:8px;padding:10px;text-align:center}
+.cr-item-lbl{font-size:8.5px;color:#64748b;margin-bottom:3px}
+.cr-item-val{font-size:15px;font-weight:800;color:#e2e8f0}
+.cr-verdict{padding:10px 14px;border-radius:8px;font-size:11px;font-weight:700;text-align:center}
+.verdict-ok{background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3)}
+.verdict-warn{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3)}
+.verdict-bad{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 </style>
 </head>
 <body>
 <div class="hdr">
   <div class="hdr-av">🎯</div>
-  <div>
-    <h2>Panel Cazaproducto · ATLAS</h2>
-    <p>6 productos ganadores · Virales TikTok &amp; Facebook · Margen x3 · Verano España 2026</p>
-  </div>
+  <div><h2>Panel Cazaproducto · ATLAS</h2><p>6 productos ganadores · Virales TikTok &amp; Facebook · Margen x3 · Verano España 2026</p></div>
   <div class="live"><div class="dot"></div><span>Live · Datos en tiempo real</span></div>
 </div>
 <div class="info-bar">
@@ -118,20 +140,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="badge" style="background:#f97316">#1 MÁS VENDIDO</div>
       <div class="pname">NOMBRE_PRODUCTO_1</div>
       <div class="pcat" style="background:#f9731630;color:#f97316;border:1px solid #f9731650">CATEGORIA_1 / NICHO_1</div>
-      <p class="pdesc">DESCRIPCION_1 — dato viral. <strong>DATO_1</strong>.</p>
+      <p class="pdesc">DESCRIPCION_1 <strong>DATO_1</strong></p>
       <div class="metrics">
         <div class="m"><div class="ml">COSTE</div><div class="mv">X€</div></div>
         <div class="m"><div class="ml">VENTA</div><div class="mv">X€</div></div>
         <div class="m ganas"><div class="ml">GANAS</div><div class="mv">X€</div></div>
       </div>
-      <div class="reval">
-        <div class="reval-t">★ REVALORIZADOR Nº1 EN VENTAS</div>
-        <p>ESTRATEGIA_1 — cómo posicionarlo para que compren.</p>
-      </div>
-      <div class="comp">
-        <div class="comp-t">+ PRODUCTO COMPLEMENTARIO</div>
-        <p>COMPLEMENTARIO_1 — sube ticket medio.</p>
-      </div>
+      <div class="reval"><div class="reval-t">★ REVALORIZADOR Nº1</div><p>ESTRATEGIA_1</p></div>
+      <div class="comp"><div class="comp-t">+ COMPLEMENTARIO</div><p>COMPLEMENTARIO_1</p></div>
       <div class="btns3">
         <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_1" target="_blank" class="b3 b3-tk">🎵 TikTok</a>
         <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_1" target="_blank" class="b3 b3-fb">f Facebook</a>
@@ -142,20 +158,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="badge" style="background:#f59e0b">#2 TENDENCIA</div>
       <div class="pname">NOMBRE_PRODUCTO_2</div>
       <div class="pcat" style="background:#eab30830;color:#eab308;border:1px solid #eab30850">CATEGORIA_2 / NICHO_2</div>
-      <p class="pdesc">DESCRIPCION_2 — dato viral. <strong>DATO_2</strong>.</p>
+      <p class="pdesc">DESCRIPCION_2 <strong>DATO_2</strong></p>
       <div class="metrics">
         <div class="m"><div class="ml">COSTE</div><div class="mv">X€</div></div>
         <div class="m"><div class="ml">VENTA</div><div class="mv">X€</div></div>
         <div class="m ganas"><div class="ml">GANAS</div><div class="mv">X€</div></div>
       </div>
-      <div class="reval">
-        <div class="reval-t">★ REVALORIZADOR Nº1 EN VENTAS</div>
-        <p>ESTRATEGIA_2 — cómo posicionarlo para que compren.</p>
-      </div>
-      <div class="comp">
-        <div class="comp-t">+ PRODUCTO COMPLEMENTARIO</div>
-        <p>COMPLEMENTARIO_2 — sube ticket medio.</p>
-      </div>
+      <div class="reval"><div class="reval-t">★ REVALORIZADOR Nº1</div><p>ESTRATEGIA_2</p></div>
+      <div class="comp"><div class="comp-t">+ COMPLEMENTARIO</div><p>COMPLEMENTARIO_2</p></div>
       <div class="btns3">
         <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_2" target="_blank" class="b3 b3-tk">🎵 TikTok</a>
         <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_2" target="_blank" class="b3 b3-fb">f Facebook</a>
@@ -166,20 +176,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="badge" style="background:#14b8a6">#3 VIRAL</div>
       <div class="pname">NOMBRE_PRODUCTO_3</div>
       <div class="pcat" style="background:#0891b230;color:#0891b2;border:1px solid #0891b250">CATEGORIA_3 / NICHO_3</div>
-      <p class="pdesc">DESCRIPCION_3 — dato viral. <strong>DATO_3</strong>.</p>
+      <p class="pdesc">DESCRIPCION_3 <strong>DATO_3</strong></p>
       <div class="metrics">
         <div class="m"><div class="ml">COSTE</div><div class="mv">X€</div></div>
         <div class="m"><div class="ml">VENTA</div><div class="mv">X€</div></div>
         <div class="m ganas"><div class="ml">GANAS</div><div class="mv">X€</div></div>
       </div>
-      <div class="reval">
-        <div class="reval-t">★ REVALORIZADOR Nº1 EN VENTAS</div>
-        <p>ESTRATEGIA_3 — cómo posicionarlo para que compren.</p>
-      </div>
-      <div class="comp">
-        <div class="comp-t">+ PRODUCTO COMPLEMENTARIO</div>
-        <p>COMPLEMENTARIO_3 — sube ticket medio.</p>
-      </div>
+      <div class="reval"><div class="reval-t">★ REVALORIZADOR Nº1</div><p>ESTRATEGIA_3</p></div>
+      <div class="comp"><div class="comp-t">+ COMPLEMENTARIO</div><p>COMPLEMENTARIO_3</p></div>
       <div class="btns3">
         <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_3" target="_blank" class="b3 b3-tk">🎵 TikTok</a>
         <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_3" target="_blank" class="b3 b3-fb">f Facebook</a>
@@ -190,20 +194,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="badge" style="background:#8b5cf6">#4 IMPULSO</div>
       <div class="pname">NOMBRE_PRODUCTO_4</div>
       <div class="pcat" style="background:#7c3aed30;color:#7c3aed;border:1px solid #7c3aed50">CATEGORIA_4 / NICHO_4</div>
-      <p class="pdesc">DESCRIPCION_4 — dato viral. <strong>DATO_4</strong>.</p>
+      <p class="pdesc">DESCRIPCION_4 <strong>DATO_4</strong></p>
       <div class="metrics">
         <div class="m"><div class="ml">COSTE</div><div class="mv">X€</div></div>
         <div class="m"><div class="ml">VENTA</div><div class="mv">X€</div></div>
         <div class="m ganas"><div class="ml">GANAS</div><div class="mv">X€</div></div>
       </div>
-      <div class="reval">
-        <div class="reval-t">★ REVALORIZADOR Nº1 EN VENTAS</div>
-        <p>ESTRATEGIA_4 — cómo posicionarlo para que compren.</p>
-      </div>
-      <div class="comp">
-        <div class="comp-t">+ PRODUCTO COMPLEMENTARIO</div>
-        <p>COMPLEMENTARIO_4 — sube ticket medio.</p>
-      </div>
+      <div class="reval"><div class="reval-t">★ REVALORIZADOR Nº1</div><p>ESTRATEGIA_4</p></div>
+      <div class="comp"><div class="comp-t">+ COMPLEMENTARIO</div><p>COMPLEMENTARIO_4</p></div>
       <div class="btns3">
         <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_4" target="_blank" class="b3 b3-tk">🎵 TikTok</a>
         <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_4" target="_blank" class="b3 b3-fb">f Facebook</a>
@@ -214,20 +212,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="badge" style="background:#ec4899">#5 BELLEZA</div>
       <div class="pname">NOMBRE_PRODUCTO_5</div>
       <div class="pcat" style="background:#db277730;color:#db2777;border:1px solid #db277750">CATEGORIA_5 / NICHO_5</div>
-      <p class="pdesc">DESCRIPCION_5 — dato viral. <strong>DATO_5</strong>.</p>
+      <p class="pdesc">DESCRIPCION_5 <strong>DATO_5</strong></p>
       <div class="metrics">
         <div class="m"><div class="ml">COSTE</div><div class="mv">X€</div></div>
         <div class="m"><div class="ml">VENTA</div><div class="mv">X€</div></div>
         <div class="m ganas"><div class="ml">GANAS</div><div class="mv">X€</div></div>
       </div>
-      <div class="reval">
-        <div class="reval-t">★ REVALORIZADOR Nº1 EN VENTAS</div>
-        <p>ESTRATEGIA_5 — cómo posicionarlo para que compren.</p>
-      </div>
-      <div class="comp">
-        <div class="comp-t">+ PRODUCTO COMPLEMENTARIO</div>
-        <p>COMPLEMENTARIO_5 — sube ticket medio.</p>
-      </div>
+      <div class="reval"><div class="reval-t">★ REVALORIZADOR Nº1</div><p>ESTRATEGIA_5</p></div>
+      <div class="comp"><div class="comp-t">+ COMPLEMENTARIO</div><p>COMPLEMENTARIO_5</p></div>
       <div class="btns3">
         <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_5" target="_blank" class="b3 b3-tk">🎵 TikTok</a>
         <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_5" target="_blank" class="b3 b3-fb">f Facebook</a>
@@ -238,20 +230,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="badge" style="background:#3b82f6">#6 GADGET</div>
       <div class="pname">NOMBRE_PRODUCTO_6</div>
       <div class="pcat" style="background:#2563eb30;color:#2563eb;border:1px solid #2563eb50">CATEGORIA_6 / NICHO_6</div>
-      <p class="pdesc">DESCRIPCION_6 — dato viral. <strong>DATO_6</strong>.</p>
+      <p class="pdesc">DESCRIPCION_6 <strong>DATO_6</strong></p>
       <div class="metrics">
         <div class="m"><div class="ml">COSTE</div><div class="mv">X€</div></div>
         <div class="m"><div class="ml">VENTA</div><div class="mv">X€</div></div>
         <div class="m ganas"><div class="ml">GANAS</div><div class="mv">X€</div></div>
       </div>
-      <div class="reval">
-        <div class="reval-t">★ REVALORIZADOR Nº1 EN VENTAS</div>
-        <p>ESTRATEGIA_6 — cómo posicionarlo para que compren.</p>
-      </div>
-      <div class="comp">
-        <div class="comp-t">+ PRODUCTO COMPLEMENTARIO</div>
-        <p>COMPLEMENTARIO_6 — sube ticket medio.</p>
-      </div>
+      <div class="reval"><div class="reval-t">★ REVALORIZADOR Nº1</div><p>ESTRATEGIA_6</p></div>
+      <div class="comp"><div class="comp-t">+ COMPLEMENTARIO</div><p>COMPLEMENTARIO_6</p></div>
       <div class="btns3">
         <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_6" target="_blank" class="b3 b3-tk">🎵 TikTok</a>
         <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_6" target="_blank" class="b3 b3-fb">f Facebook</a>
@@ -260,404 +246,129 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 </div>
+
+<!-- CALCULADORA -->
+<div class="calc-section">
+  <div class="calc-header">
+    <span style="font-size:16px">🧮</span>
+    <div>
+      <div class="calc-title">Calculadora de Rentabilidad</div>
+      <div class="calc-sub">Introduce los datos del producto para ver si es viable</div>
+    </div>
+  </div>
+  <div class="calc-body">
+    <div class="calc-inputs">
+      <div class="ci"><div class="ci-lbl">💰 Coste producto (€)</div><input class="ci-inp" id="c_coste" type="number" value="8" step="0.01" oninput="calcular()"></div>
+      <div class="ci"><div class="ci-lbl">📦 Coste envío (€)</div><input class="ci-inp" id="c_envio" type="number" value="4" step="0.01" oninput="calcular()"></div>
+      <div class="ci"><div class="ci-lbl">🏷️ Precio venta (€)</div><input class="ci-inp" id="c_venta" type="number" value="29" step="0.01" oninput="calcular()"></div>
+      <div class="ci"><div class="ci-lbl">🛒 Comisión Shopify (%)</div><input class="ci-inp" id="c_shopify" type="number" value="2" step="0.1" oninput="calcular()"></div>
+      <div class="ci"><div class="ci-lbl">📢 CPA publicidad (€)</div><input class="ci-inp" id="c_cpa" type="number" value="10" step="0.5" oninput="calcular()"></div>
+      <div class="ci"><div class="ci-lbl">🎯 Meta ventas/mes (€)</div><input class="ci-inp" id="c_meta" type="number" value="10000" step="100" oninput="calcular()"></div>
+    </div>
+    <div class="calc-results" id="calcResults">
+      <div class="cr-main" id="cr_neto_box">
+        <div class="cr-label">MARGEN NETO</div>
+        <div class="cr-val" id="cr_neto">—</div>
+        <div class="cr-sub" id="cr_pct">por venta</div>
+      </div>
+      <div class="cr-grid">
+        <div class="cr-item"><div class="cr-item-lbl">Margen bruto</div><div class="cr-item-val" id="cr_bruto">—</div></div>
+        <div class="cr-item"><div class="cr-item-lbl">ROAS mínimo</div><div class="cr-item-val" id="cr_roas">—</div></div>
+        <div class="cr-item"><div class="cr-item-lbl">Ventas para meta</div><div class="cr-item-val" id="cr_ventas">—</div></div>
+        <div class="cr-item"><div class="cr-item-lbl">x3 sobre coste</div><div class="cr-item-val" id="cr_x3">—</div></div>
+      </div>
+      <div class="cr-verdict" id="cr_verdict">Introduce los datos para ver el veredicto</div>
+    </div>
+  </div>
+</div>
+\u003cscript>
+function calcular(){
+  var coste=parseFloat(document.getElementById('c_coste').value)||0;
+  var envio=parseFloat(document.getElementById('c_envio').value)||0;
+  var venta=parseFloat(document.getElementById('c_venta').value)||0;
+  var shopify=parseFloat(document.getElementById('c_shopify').value)||0;
+  var cpa=parseFloat(document.getElementById('c_cpa').value)||0;
+  var meta=parseFloat(document.getElementById('c_meta').value)||10000;
+  var bruto=venta-coste;
+  var comShopify=venta*(shopify/100);
+  var neto=venta-coste-envio-comShopify-cpa;
+  var pct=venta>0?(neto/venta*100):0;
+  var roas=cpa>0?(venta/cpa):0;
+  var ventasMeta=neto>0?Math.ceil(meta/neto):999;
+  var x3=coste*3;
+  document.getElementById('cr_bruto').textContent=bruto.toFixed(2)+'€';
+  document.getElementById('cr_neto').textContent=neto.toFixed(2)+'€';
+  document.getElementById('cr_pct').textContent=pct.toFixed(1)+'% margen neto';
+  document.getElementById('cr_roas').textContent=roas.toFixed(2)+'x';
+  document.getElementById('cr_ventas').textContent=ventasMeta+' ventas';
+  document.getElementById('cr_x3').textContent=x3.toFixed(2)+'€';
+  var box=document.getElementById('cr_neto_box');
+  var v=document.getElementById('cr_verdict');
+  if(neto>=12){
+    document.getElementById('cr_neto').style.color='#22c55e';
+    v.className='cr-verdict verdict-ok';
+    v.textContent='✅ VIABLE — Margen neto saludable. Lanza con presupuesto de prueba de 10€/día.';
+  }else if(neto>=6){
+    document.getElementById('cr_neto').style.color='#f59e0b';
+    v.className='cr-verdict verdict-warn';
+    v.textContent='⚠️ AJUSTADO — Margen justo. Sube precio o reduce costes antes de escalar.';
+  }else{
+    document.getElementById('cr_neto').style.color='#ef4444';
+    v.className='cr-verdict verdict-bad';
+    v.textContent='❌ NO VIABLE — Margen insuficiente. Revisa precio de venta o coste del producto.';
+  }
+}
+calcular();
+\u003c/script>
 </body>
 </html>
 
-RECUERDA: 6 productos de verano España con datos reales. SOLO HTML sin texto adicional.` },
+RECUERDA: sustituye TODOS los placeholders en LAS 6 TARJETAS con datos reales de verano España. Entrega SOLO el HTML.` },
 
   { id:"nova", avatar:"https://randomuser.me/api/portraits/women/44.jpg",   name:"NOVA",   subtitle:"Constructor de Tienda", initials:"NV", color:"#8b5cf6",
     role:"Construcción", task:"Diseñando landing de conversión...", status:"online",
     welcome:"Dame el producto y las imágenes. Te entrego una landing page HTML completa lista para publicar.",
     suggestions:["Crea una landing page","Calcula mi beneficio por venta","Revaloriza mi oferta"],
     prompt:`Eres NOVA, mi creadora de landing pages para tiendas online en España.
-Cuando te den un producto o URL, generas DIRECTAMENTE el HTML completo sin preguntas previas.
-REGLA: devuelve SOLO HTML empezando con <!DOCTYPE html>. Sin backticks. Sin texto adicional.
+Cuando te pasen una URL de producto (AliExpress, Amazon, etc.) o el nombre de un producto, generas DIRECTAMENTE el HTML completo de la landing. Sin preguntas, sin texto adicional, sin backticks. SOLO el HTML empezando por <!DOCTYPE html>.
 
-Genera una landing page COMPLETA, EDITABLE y de ALTA CONVERSIÓN con esta estructura:
+ESTRUCTURA OBLIGATORIA (8 secciones en este orden):
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>[NOMBRE PRODUCTO]</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff}
-/* BARRA ENVÍO */
-.topbar{background:#111;color:#fff;text-align:center;padding:8px;font-size:12px;font-weight:600}
-/* NAV */
-nav{background:#fff;border-bottom:2px solid #f1f5f9;padding:12px 5%;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
-.logo{font-size:15px;font-weight:900;color:#0f172a}
-.nav-links a{font-size:12px;color:#475569;text-decoration:none;margin-left:20px}
-/* HERO */
-.hero{display:grid;grid-template-columns:1fr 1fr;gap:0;max-width:1100px;margin:0 auto;padding:28px 5%}
-.gallery{position:relative}
-.main-img{width:100%;min-height:380px;border-radius:14px;overflow:hidden;position:relative;background:#e0f2fe;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.main-img img{width:100%;height:100%;object-fit:cover;border-radius:14px}
-.img-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;color:#64748b;font-size:13px;text-align:center;padding:40px}
-.img-upload-btn{position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;display:none}
-.main-img:hover .img-upload-btn{display:block}
-.discount-badge{position:absolute;top:12px;left:12px;background:#ef4444;color:#fff;padding:5px 11px;border-radius:7px;font-size:12px;font-weight:800;z-index:2}
-.overlay-content{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.75));padding:24px 20px;border-radius:0 0 14px 14px}
-.overlay-title{color:#fff;font-size:20px;font-weight:900;text-transform:uppercase;line-height:1.2;margin-bottom:6px}
-.overlay-price{color:#fbbf24;font-size:28px;font-weight:900}
-.regalo-tag{display:inline-flex;align-items:center;gap:5px;background:#0f172a;color:#fff;padding:6px 12px;border-radius:7px;font-size:11px;font-weight:700;margin-top:8px}
-.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}
-.thumb{border-radius:8px;aspect-ratio:1;border:2px solid transparent;cursor:pointer;overflow:hidden;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:20px}
-.thumb.active,.thumb:hover{border-color:#3b82f6}
-/* INFO */
-.pinfo{padding:0 0 0 30px}
-.ptags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-.ptag{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em}
-.ptag::after{content:'·';margin-left:6px;color:#cbd5e1}.ptag:last-child::after{content:''}
-.ptitle{font-size:21px;font-weight:900;color:#0f172a;line-height:1.35;margin-bottom:10px}
-.pstars{display:flex;align-items:center;gap:6px;margin-bottom:10px}
-.stars{color:#fbbf24;font-size:14px}.rating{font-weight:800;font-size:13px}.nreviews{color:#64748b;font-size:12px}
-.pprice{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.price-now{font-size:28px;font-weight:900;color:#0f172a}
-.price-old{font-size:15px;color:#94a3b8;text-decoration:line-through}
-.price-pct{background:#dcfce7;color:#16a34a;padding:3px 8px;border-radius:6px;font-size:12px;font-weight:800}
-.benefits-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
-.benefit{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:#334155;line-height:1.45}
-.b-ic{font-size:15px;flex-shrink:0;margin-top:1px}
-.pack-title{font-size:10px;font-weight:800;color:#0891b2;letter-spacing:.08em;text-transform:uppercase;margin-bottom:9px}
-.pack{border:2px solid #e2e8f0;border-radius:10px;padding:11px 13px;margin-bottom:7px;cursor:pointer;display:flex;align-items:center;gap:9px;position:relative;transition:border-color .15s}
-.pack.selected{border-color:#fbbf24;background:#fffbeb}
-.pack-dot{width:17px;height:17px;border-radius:50%;border:2px solid #cbd5e1;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.pack.selected .pack-dot{border-color:#f59e0b;background:#f59e0b}
-.pack.selected .pack-dot::after{content:'';width:7px;height:7px;border-radius:50%;background:#fff}
-.pack-info{flex:1}.pack-name{font-size:12px;font-weight:700;color:#0f172a}.pack-sub{font-size:10px;color:#64748b}
-.pack-pr{text-align:right}.pack-price{font-size:15px;font-weight:800;color:#0f172a}.pack-old-p{font-size:10px;color:#94a3b8;text-decoration:line-through}
-.pill-badge{position:absolute;top:-9px;right:10px;font-size:8.5px;font-weight:800;padding:2px 8px;border-radius:10px;color:#fff}
-.pill-best{background:#0891b2}.pill-val{background:#f59e0b}
-.cta-btn{width:100%;padding:15px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px}
-.trust-bar{display:flex;gap:12px;margin-top:10px;justify-content:center;flex-wrap:wrap}
-.trust-item{font-size:10px;color:#64748b;display:flex;align-items:center;gap:4px}
-/* SECCIÓN DESCRIPCIÓN COMPLETA */
-.desc-section{background:#f8fafc;padding:50px 5%;border-top:1px solid #e2e8f0}
-.desc-inner{max-width:900px;margin:0 auto}
-.sec-title{font-size:28px;font-weight:900;color:#0f172a;text-align:center;margin-bottom:8px}
-.sec-sub{font-size:14px;color:#64748b;text-align:center;margin-bottom:36px}
-.problem-box{background:#fff;border:2px solid #fecaca;border-radius:14px;padding:24px;margin-bottom:20px}
-.problem-title{font-size:14px;font-weight:800;color:#dc2626;margin-bottom:10px;display:flex;align-items:center;gap:7px}
-.problem-list{list-style:none;display:flex;flex-direction:column;gap:8px}
-.problem-list li{font-size:13px;color:#475569;padding-left:20px;position:relative;line-height:1.6}
-.problem-list li::before{content:'✗';position:absolute;left:0;color:#ef4444;font-weight:800}
-.solution-box{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #86efac;border-radius:14px;padding:24px;margin-bottom:28px}
-.solution-title{font-size:14px;font-weight:800;color:#16a34a;margin-bottom:10px;display:flex;align-items:center;gap:7px}
-.solution-text{font-size:13px;color:#166534;line-height:1.7}
-.benefits-full{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
-.bf-card{background:#fff;border-radius:12px;padding:20px;text-align:center;border:1px solid #e2e8f0;box-shadow:0 2px 6px rgba(0,0,0,.05)}
-.bf-icon{font-size:30px;margin-bottom:8px}
-.bf-title{font-size:13px;font-weight:800;color:#0f172a;margin-bottom:5px}
-.bf-text{font-size:11px;color:#64748b;line-height:1.6}
-.saves-bar{background:#fff;border-radius:12px;padding:20px;border:1px solid #e2e8f0;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;text-align:center;margin-bottom:28px}
-.save-item .save-val{font-size:26px;font-weight:900;color:#3b82f6}.save-item .save-lbl{font-size:11px;color:#64748b;margin-top:3px}
-.urgency-box{background:#fffbeb;border:2px solid #fcd34d;border-radius:12px;padding:18px;text-align:center}
-.urgency-title{font-size:15px;font-weight:800;color:#92400e;margin-bottom:6px}
-.urgency-text{font-size:12px;color:#78350f}
-/* RESEÑAS */
-.reviews-section{padding:50px 5%;border-top:1px solid #e2e8f0}
-.reviews-inner{max-width:900px;margin:0 auto}
-.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
-.rev-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px}
-.rev-stars{color:#fbbf24;font-size:13px;margin-bottom:6px}
-.rev-text{font-size:12px;color:#334155;line-height:1.6;margin-bottom:8px}
-.rev-author{font-size:11px;font-weight:700;color:#0f172a}.rev-meta{font-size:10px;color:#94a3b8}
-/* CHECKOUT */
-.checkout-section{padding:50px 5%;background:#0f172a;border-top:4px solid #f59e0b}
-.checkout-inner{max-width:700px;margin:0 auto;text-align:center}
-.checkout-title{font-size:24px;font-weight:900;color:#fff;margin-bottom:8px}
-.checkout-sub{font-size:13px;color:#94a3b8;margin-bottom:28px}
-.checkout-form{background:#1e293b;border-radius:14px;padding:24px;text-align:left}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.form-group{display:flex;flex-direction:column;gap:5px}
-.form-group label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
-.form-group input,.form-group select{padding:10px 12px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:13px;font-family:inherit}
-.form-group input:focus,.form-group select:focus{outline:none;border-color:#3b82f6}
-.form-row-full{margin-bottom:12px}
-.card-icons{display:flex;gap:6px;margin-bottom:16px}
-.card-icon{background:#1e293b;border:1px solid #334155;border-radius:5px;padding:4px 8px;font-size:11px;color:#94a3b8;font-weight:700}
-.pay-btn{width:100%;padding:15px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
-.secure-note{text-align:center;font-size:11px;color:#64748b;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:5px}
-/* FAQ */
-.faq-section{padding:40px 5%;border-top:1px solid #e2e8f0}
-.faq-inner{max-width:700px;margin:0 auto}
-.faq-item{border-bottom:1px solid #e2e8f0;padding:14px 0;cursor:pointer}
-.faq-q{font-size:13px;font-weight:700;color:#0f172a;display:flex;justify-content:space-between;align-items:center}
-.faq-a{font-size:12px;color:#475569;line-height:1.7;margin-top:8px;display:none}
-.faq-item.open .faq-a{display:block}
-.faq-item.open .faq-arrow{transform:rotate(180deg)}
-.faq-arrow{transition:transform .2s}
-/* FOOTER */
-footer{background:#0f172a;color:#64748b;text-align:center;padding:20px;font-size:11px}
-/* ═══ MODO EDICIÓN ═══ */
-.edit-toolbar{position:fixed;bottom:20px;right:20px;background:#0f172a;border-radius:14px;padding:12px 16px;box-shadow:0 8px 32px rgba(0,0,0,.4);z-index:999;display:flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.1)}
-.edit-btn{padding:8px 14px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
-.edit-toggle{background:#f59e0b;color:#fff}
-.edit-toggle.active{background:#22c55e}
-.color-input{width:32px;height:32px;border-radius:6px;border:none;cursor:pointer;padding:2px}
-.edit-label{font-size:10px;color:#94a3b8}
-[contenteditable="true"]{outline:2px dashed #f59e0b;border-radius:4px;padding:2px}
-[contenteditable="true"]:focus{outline:2px solid #3b82f6;background:rgba(59,130,246,.05)}
-</style>
-</head>
-<body>
+1. BARRA SUPERIOR: fondo negro, texto blanco — envío gratis, devolución 30 días, stock limitado
+2. NAVEGACIÓN sticky: logo tienda, links (Características, Reseñas, FAQ, Pedir Ahora), icono carrito
+3. HERO — 2 columnas:
+   - Izquierda: área de imagen con fondo de color, texto superpuesto con BENEFICIO EN MAYÚSCULAS + precio en naranja + botón regalo. Añade un INPUT FILE oculto y onclick en el área para subir foto. Cuando se sube imagen, se muestra con object-fit:cover y se oculta el placeholder
+   - Derecha: tags, título con REGALO GRATIS, estrellas+reseñas, precio actual + tachado + %, 4 beneficios en grid 2x2, selector 3 packs (Básico/Premium MÁS ELEGIDO/Mejor Opción), botón CTA verde grande, sellos de confianza
+4. DESCRIPCIÓN COMPLETA (fondo #f8fafc):
+   - Título "¿Por qué miles de personas en España ya lo tienen?"
+   - Caja roja "El problema que sufres ahora" con 3 bullets con ✗
+   - Caja verde "La solución" con texto que describe cómo el producto resuelve el problema
+   - 3 tarjetas de beneficios con emoji grande, título y descripción con dato concreto
+   - Barra de 3 estadísticas (horas ahorradas / euros ahorrados / % satisfechos)
+   - Caja amarilla de urgencia "¿Por qué actuar hoy?"
+5. RESEÑAS: 3 tarjetas con ★★★★★, texto detallado, nombre+ciudad españoles
+6. CHECKOUT (fondo #0f172a): título, formulario con nombre/email/teléfono/pack/dirección, botón pagar verde
+7. FAQ: 4 preguntas acordeón (2 genéricas + 2 específicas del producto)
+8. FOOTER
 
-<!-- BARRA SUPERIOR -->
-<div class="topbar">🚀 Envío gratis a toda España &nbsp;·&nbsp; 30 días devolución sin preguntas &nbsp;·&nbsp; ⚡ Stock limitado</div>
+CARACTERÍSTICAS TÉCNICAS:
+- Botón flotante "✏️ Editar" abajo a la derecha que activa/desactiva contenteditable en todos los textos y muestra outline amarillo
+- Selector de color acento que cambia los botones CTA
+- Botón "💾 Guardar HTML" que descarga la página con los cambios
+- Al hacer click en la imagen, abre file input para subir foto
+- FAQ con toggle JS para abrir/cerrar
+- Pack selector con radio buttons que cambia el estado visual
 
-<!-- NAVEGACIÓN -->
-<nav>
-  <div class="logo">[NOMBRE TIENDA]</div>
-  <div class="nav-links">
-    <a href="#descripcion">Descripción</a>
-    <a href="#caracteristicas">Características</a>
-    <a href="#resenas">Reseñas</a>
-    <a href="#faq">FAQ</a>
-    <a href="#pedir">Pedir ahora</a>
-  </div>
-  <span style="font-size:22px;cursor:pointer">🛒</span>
-</nav>
+REGLAS DE COPY:
+- Español de España, directo, sin clichés
+- El problema debe hacer que el cliente diga "eso me pasa a mí"
+- Los beneficios con números concretos cuando sea posible
+- Las reseñas: detalladas, creíbles, con ciudad y "hace X días"
+- Urgencia legítima (no inventada)
 
-<!-- HERO -->
-<div class="hero">
-  <div class="gallery">
-    <div class="main-img" onclick="document.getElementById('imgUpload').click()">
-      <div class="discount-badge">-[X]%</div>
-      <div class="img-placeholder" id="imgPlaceholder">
-        <span style="font-size:40px">📸</span>
-        <strong>Haz clic para subir la foto del producto</strong>
-        <span style="font-size:11px">JPG, PNG — arrastra o haz clic</span>
-      </div>
-      <img id="productImg" src="" style="display:none;width:100%;height:380px;object-fit:cover;border-radius:14px" alt="">
-      <div class="overlay-content" id="imgOverlay" style="display:none">
-        <div class="overlay-title" contenteditable="false">[BENEFICIO 1]<br>[BENEFICIO 2]<br>[BENEFICIO 3]</div>
-        <div class="overlay-price" contenteditable="false">[PRECIO]€</div>
-        <div class="regalo-tag">🎁 REGALO INCLUIDO</div>
-      </div>
-      <button class="img-upload-btn">📷 Cambiar foto</button>
-    </div>
-    <input type="file" id="imgUpload" accept="image/*" style="display:none">
-    <div class="thumbs">
-      <div class="thumb active">🎯</div>
-      <div class="thumb">✨</div>
-      <div class="thumb">🎁</div>
-      <div class="thumb">🌟</div>
-    </div>
-  </div>
+URL SLUG: Al inicio del HTML como comentario <!-- slug: /nombre-producto-corto --> para usar como URL limpia en Facebook Ads
 
-  <div class="pinfo" id="caracteristicas">
-    <div class="ptags">
-      <span class="ptag" contenteditable="false">[TAG 1]</span>
-      <span class="ptag" contenteditable="false">[TAG 2]</span>
-      <span class="ptag" contenteditable="false">[TAG 3]</span>
-    </div>
-    <h1 class="ptitle" contenteditable="false">[NOMBRE PRODUCTO] · [REGALO] GRATIS (valor [X]€)</h1>
-    <div class="pstars">
-      <span class="stars">★★★★★</span>
-      <strong class="rating" contenteditable="false">4.8</strong>
-      <span class="nreviews" contenteditable="false">1.247 reseñas verificadas</span>
-    </div>
-    <div class="pprice">
-      <span class="price-now" contenteditable="false">[PRECIO]€</span>
-      <span class="price-old" contenteditable="false">[PRECIO ORIGINAL]€</span>
-      <span class="price-pct" contenteditable="false">-[X]%</span>
-    </div>
-    <div class="benefits-grid">
-      <div class="benefit"><span class="b-ic">🚚</span><span contenteditable="false">Envío 24-72h en toda España</span></div>
-      <div class="benefit"><span class="b-ic">✨</span><span contenteditable="false">[BENEFICIO CLAVE 1]</span></div>
-      <div class="benefit"><span class="b-ic">🎁</span><span contenteditable="false">[REGALO] GRATIS (valor [X]€)</span></div>
-      <div class="benefit"><span class="b-ic">🛡️</span><span contenteditable="false">Garantía 30 días sin preguntas</span></div>
-    </div>
-    <div class="pack-title">ELIGE TU PACK PERFECTO</div>
-    <div class="pack" onclick="selectPack(this)">
-      <div class="pack-dot"></div>
-      <div class="pack-info"><div class="pack-name" contenteditable="false">Pack Básico</div><div class="pack-sub" contenteditable="false">Solo el producto</div></div>
-      <div class="pack-pr"><div class="pack-price" contenteditable="false">[PRECIO BASE]€</div><div class="pack-old-p" contenteditable="false">[ORIGINAL]€</div></div>
-    </div>
-    <div class="pack selected" onclick="selectPack(this)" style="position:relative">
-      <div class="pill-badge pill-best">MÁS ELEGIDO</div>
-      <div class="pack-dot"></div>
-      <div class="pack-info"><div class="pack-name" contenteditable="false">Pack Premium</div><div class="pack-sub" contenteditable="false">+ [REGALO] GRATIS · ahorras [X]€</div></div>
-      <div class="pack-pr"><div class="pack-price" contenteditable="false">[PRECIO MEDIO]€</div><div class="pack-old-p" contenteditable="false">[ORIGINAL]€</div></div>
-    </div>
-    <div class="pack" onclick="selectPack(this)" style="position:relative">
-      <div class="pill-badge pill-val">MEJOR VALOR</div>
-      <div class="pack-dot"></div>
-      <div class="pack-info"><div class="pack-name" contenteditable="false">Pack Mejor Opción</div><div class="pack-sub" contenteditable="false">Kit completo · máximo ahorro</div></div>
-      <div class="pack-pr"><div class="pack-price" contenteditable="false">[PRECIO ALTO]€</div><div class="pack-old-p" contenteditable="false">[ORIGINAL]€</div></div>
-    </div>
-    <button class="cta-btn" onclick="document.getElementById('pedir').scrollIntoView({behavior:'smooth'})">🛒 Quiero este producto — Solo [N] unidades</button>
-    <div class="trust-bar">
-      <span class="trust-item">🔒 Pago seguro</span>
-      <span class="trust-item">🚚 Envío gratis</span>
-      <span class="trust-item">⭐ +1.200 clientes</span>
-      <span class="trust-item">↩️ Devolución gratis</span>
-    </div>
-  </div>
-</div>
-
-<!-- DESCRIPCIÓN COMPLETA -->
-<div class="desc-section" id="descripcion">
-  <div class="desc-inner">
-    <h2 class="sec-title" contenteditable="false">¿Por qué miles de personas en España ya lo tienen?</h2>
-    <p class="sec-sub" contenteditable="false">Si sufres de [PROBLEMA PRINCIPAL], esto es lo que cambiará desde el primer día.</p>
-
-    <div class="problem-box">
-      <div class="problem-title">😤 El problema que sufres ahora</div>
-      <ul class="problem-list">
-        <li contenteditable="false">[PROBLEMA 1 — específico y real]</li>
-        <li contenteditable="false">[PROBLEMA 2 — específico y real]</li>
-        <li contenteditable="false">[PROBLEMA 3 — específico y real]</li>
-      </ul>
-    </div>
-
-    <div class="solution-box">
-      <div class="solution-title">✅ La solución que lo resuelve de una vez</div>
-      <p class="solution-text" contenteditable="false">[NOMBRE PRODUCTO] es [DESCRIPCIÓN DE SOLUCIÓN]. En lugar de [PROBLEMA], ahora puedes [BENEFICIO PRINCIPAL]. En menos de [TIEMPO], [RESULTADO CONCRETO].</p>
-    </div>
-
-    <div class="benefits-full">
-      <div class="bf-card"><div class="bf-icon">[ICONO 1]</div><div class="bf-title" contenteditable="false">[BENEFICIO TÍTULO 1]</div><div class="bf-text" contenteditable="false">[DESCRIPCIÓN BENEFICIO 1 — concreta, con número si es posible]</div></div>
-      <div class="bf-card"><div class="bf-icon">[ICONO 2]</div><div class="bf-title" contenteditable="false">[BENEFICIO TÍTULO 2]</div><div class="bf-text" contenteditable="false">[DESCRIPCIÓN BENEFICIO 2]</div></div>
-      <div class="bf-card"><div class="bf-icon">[ICONO 3]</div><div class="bf-title" contenteditable="false">[BENEFICIO TÍTULO 3]</div><div class="bf-text" contenteditable="false">[DESCRIPCIÓN BENEFICIO 3]</div></div>
-    </div>
-
-    <div class="saves-bar">
-      <div class="save-item"><div class="save-val" contenteditable="false">[X]h</div><div class="save-lbl" contenteditable="false">ahorradas por semana</div></div>
-      <div class="save-item"><div class="save-val" contenteditable="false">[X]€</div><div class="save-lbl" contenteditable="false">ahorro vs alternativas</div></div>
-      <div class="save-item"><div class="save-val" contenteditable="false">[X]%</div><div class="save-lbl" contenteditable="false">de clientes satisfechos</div></div>
-    </div>
-
-    <div class="urgency-box">
-      <div class="urgency-title">⚡ ¿Por qué actuar hoy?</div>
-      <p class="urgency-text" contenteditable="false">[MOTIVO DE URGENCIA LEGÍTIMO — oferta, stock limitado, temporada, precio especial, etc.]</p>
-    </div>
-  </div>
-</div>
-
-<!-- RESEÑAS -->
-<div class="reviews-section" id="resenas">
-  <div class="reviews-inner">
-    <h2 class="sec-title">Lo que dicen nuestros clientes</h2>
-    <div class="reviews-grid">
-      <div class="rev-card"><div class="rev-stars">★★★★★</div><p class="rev-text" contenteditable="false">[RESEÑA REAL 1 — detallada, con beneficio concreto mencionado]</p><div><div class="rev-author" contenteditable="false">[Nombre Apellido]</div><div class="rev-meta" contenteditable="false">[Ciudad], hace [N] días · Compra verificada</div></div></div>
-      <div class="rev-card"><div class="rev-stars">★★★★★</div><p class="rev-text" contenteditable="false">[RESEÑA REAL 2 — detallada, diferente ángulo]</p><div><div class="rev-author" contenteditable="false">[Nombre Apellido]</div><div class="rev-meta" contenteditable="false">[Ciudad], hace [N] días · Compra verificada</div></div></div>
-      <div class="rev-card"><div class="rev-stars">★★★★★</div><p class="rev-text" contenteditable="false">[RESEÑA REAL 3 — menciona el regalo]</p><div><div class="rev-author" contenteditable="false">[Nombre Apellido]</div><div class="rev-meta" contenteditable="false">[Ciudad], hace [N] días · Compra verificada</div></div></div>
-    </div>
-  </div>
-</div>
-
-<!-- FORMULARIO DE PEDIDO -->
-<div class="checkout-section" id="pedir">
-  <div class="checkout-inner">
-    <h2 class="checkout-title">🛒 Completa tu pedido ahora</h2>
-    <p class="checkout-sub">Rellena tus datos y nos ponemos en contacto para confirmar. Pago seguro al recibir o por transferencia.</p>
-    <div class="checkout-form">
-      <div class="form-row">
-        <div class="form-group"><label>Nombre</label><input type="text" placeholder="Tu nombre completo"></div>
-        <div class="form-group"><label>Email</label><input type="email" placeholder="tu@email.com"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Teléfono</label><input type="tel" placeholder="+34 600 000 000"></div>
-        <div class="form-group"><label>Pack elegido</label><select><option>Pack Básico — [PRECIO]€</option><option selected>Pack Premium — [PRECIO]€ (MÁS ELEGIDO)</option><option>Pack Mejor Opción — [PRECIO]€</option></select></div>
-      </div>
-      <div class="form-row-full form-group"><label>Dirección de envío</label><input type="text" placeholder="Calle, número, piso, ciudad, CP"></div>
-      <button class="pay-btn">✅ Confirmar pedido — Pago seguro</button>
-      <div class="secure-note">🔒 Tus datos están protegidos · SSL · Devolución garantizada 30 días</div>
-    </div>
-  </div>
-</div>
-
-<!-- FAQ -->
-<div class="faq-section" id="faq">
-  <div class="faq-inner">
-    <h2 class="sec-title" style="margin-bottom:24px;text-align:center">Preguntas frecuentes</h2>
-    <div class="faq-item open" onclick="toggleFaq(this)"><div class="faq-q"><span contenteditable="false">¿Cuándo recibiré mi pedido?</span><span class="faq-arrow">▾</span></div><div class="faq-a" contenteditable="false">Envío en 24-72h a toda España con número de seguimiento.</div></div>
-    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span contenteditable="false">¿Puedo devolver si no me convence?</span><span class="faq-arrow">▾</span></div><div class="faq-a" contenteditable="false">Sí. 30 días para devolver sin dar explicaciones. Te devolvemos el 100%.</div></div>
-    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span contenteditable="false">[PREGUNTA ESPECÍFICA DEL PRODUCTO 1]</span><span class="faq-arrow">▾</span></div><div class="faq-a" contenteditable="false">[RESPUESTA ESPECÍFICA 1]</div></div>
-    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span contenteditable="false">[PREGUNTA ESPECÍFICA DEL PRODUCTO 2]</span><span class="faq-arrow">▾</span></div><div class="faq-a" contenteditable="false">[RESPUESTA ESPECÍFICA 2]</div></div>
-  </div>
-</div>
-
-<footer>© 2026 [NOMBRE TIENDA] · Todos los derechos reservados · <a href="#" style="color:#475569">Política de privacidad</a> · <a href="#" style="color:#475569">Aviso legal</a></footer>
-
-<!-- TOOLBAR EDICIÓN -->
-<div class="edit-toolbar">
-  <span class="edit-label">🎨 Editar página:</span>
-  <button class="edit-btn edit-toggle" onclick="toggleEdit(this)">✏️ Activar edición</button>
-  <div style="display:flex;flex-direction:column;gap:2px;align-items:center">
-    <span class="edit-label" style="font-size:9px">Color acento</span>
-    <input type="color" class="color-input" value="#22c55e" onchange="changeAccent(this.value)" title="Color principal">
-  </div>
-  <button class="edit-btn" style="background:#3b82f6;color:#fff" onclick="exportHTML()">💾 Guardar HTML</button>
-</div>
-
-\u003cscript>
-// Pack selector
-function selectPack(el){
-  document.querySelectorAll('.pack').forEach(p=>{p.classList.remove('selected');const d=p.querySelector('.pack-dot');if(d){d.style.background='';d.style.borderColor='#cbd5e1';d.innerHTML=''}});
-  el.classList.add('selected');
-  const dot=el.querySelector('.pack-dot');
-  if(dot){dot.style.borderColor='#f59e0b';dot.style.background='#f59e0b';dot.innerHTML='<span style="display:block;width:7px;height:7px;border-radius:50%;background:#fff;margin:auto"></span>'}
-}
-
-// FAQ toggle
-function toggleFaq(el){el.classList.toggle('open')}
-
-// Subir imagen
-document.getElementById('imgUpload').addEventListener('change',function(e){
-  const file=e.target.files[0];
-  if(!file)return;
-  const reader=new FileReader();
-  reader.onload=function(ev){
-    const img=document.getElementById('productImg');
-    img.src=ev.target.result;
-    img.style.display='block';
-    document.getElementById('imgPlaceholder').style.display='none';
-    document.getElementById('imgOverlay').style.display='block';
-  };
-  reader.readAsDataURL(file);
-});
-
-// Modo edición
-let editMode=false;
-function toggleEdit(btn){
-  editMode=!editMode;
-  document.querySelectorAll('[contenteditable]').forEach(el=>el.setAttribute('contenteditable',editMode?'true':'false'));
-  btn.textContent=editMode?'✅ Edición activa':'✏️ Activar edición';
-  btn.classList.toggle('active',editMode);
-}
-
-// Cambiar color acento
-function changeAccent(color){
-  document.querySelectorAll('.cta-btn,.pay-btn').forEach(el=>el.style.background=color);
-  document.documentElement.style.setProperty('--accent',color);
-}
-
-// Exportar HTML
-function exportHTML(){
-  const html='<!DOCTYPE html>'+document.documentElement.outerHTML;
-  const blob=new Blob([html],{type:'text/html'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='mi-landing-page.html';
-  a.click();
-}
-\u003c/script>
-</body>
-</html>
-
-INSTRUCCIONES CRÍTICAS:
-1. Reemplaza TODOS los [PLACEHOLDERS] con datos reales del producto
-2. Problema/Solución: específicos al producto, que el cliente se identifique
-3. Beneficios: con datos concretos (números, tiempos, ahorros)
-4. Reseñas: detalladas, con nombres y ciudades españolas reales
-5. FAQ: 2 genéricas + 2 específicas del producto
-6. El [NOMBRE TIENDA] debe ser coherente con el producto
-7. Escapa \u003c/script> como <\/script> en el JS del HTML generado
-8. Entrega SOLO el HTML sin texto adicional` },
+Rellena TODO con datos reales del producto que te pasen. Si es una URL de AliExpress o Amazon, extrae el nombre del producto de la URL y genera la landing para ese producto.` },
 
   { id:"pluma", avatar:"https://randomuser.me/api/portraits/women/17.jpg",  name:"PLUMA",  subtitle:"Copywriter Persuasivo", initials:"PL", color:"#ec4899",
     role:"Marketing", task:"Escribiendo textos que convierten...", status:"online",
