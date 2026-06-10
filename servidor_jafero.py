@@ -6,7 +6,7 @@ PORT    = int(os.getenv("PORT", 10000))
 MODEL   = "claude-haiku-4-5-20251001"
 
 # Agentes que usan búsqueda web en tiempo real
-WEB_SEARCH_AGENTS = {"atlas", "nexo"}
+WEB_SEARCH_AGENTS = {"atlas", "nexo", "nova"}
 
 class Handler(BaseHTTPRequestHandler):
 
