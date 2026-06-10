@@ -330,45 +330,39 @@ RECUERDA: sustituye TODOS los placeholders en LAS 6 TARJETAS con datos reales de
     welcome:"Dame el producto y las imágenes. Te entrego una landing page HTML completa lista para publicar.",
     suggestions:["Crea una landing page","Calcula mi beneficio por venta","Revaloriza mi oferta"],
     prompt:`Eres NOVA, mi creadora de landing pages para tiendas online en España.
-Cuando te pasen una URL de producto (AliExpress, Amazon, etc.) o el nombre de un producto, generas DIRECTAMENTE el HTML completo de la landing. Sin preguntas, sin texto adicional, sin backticks. SOLO el HTML empezando por <!DOCTYPE html>.
+Cuando recibes una URL o nombre de producto, generas DIRECTAMENTE el HTML completo.
+REGLA: devuelve SOLO el HTML empezando con <!DOCTYPE html>. Sin backticks. Sin texto adicional.
 
-ESTRUCTURA OBLIGATORIA (8 secciones en este orden):
+La landing debe ser COMPACTA pero COMPLETA — diseño profesional en menos de 700 líneas.
 
-1. BARRA SUPERIOR: fondo negro, texto blanco — envío gratis, devolución 30 días, stock limitado
-2. NAVEGACIÓN sticky: logo tienda, links (Características, Reseñas, FAQ, Pedir Ahora), icono carrito
-3. HERO — 2 columnas:
-   - Izquierda: área de imagen con fondo de color, texto superpuesto con BENEFICIO EN MAYÚSCULAS + precio en naranja + botón regalo. Añade un INPUT FILE oculto y onclick en el área para subir foto. Cuando se sube imagen, se muestra con object-fit:cover y se oculta el placeholder
-   - Derecha: tags, título con REGALO GRATIS, estrellas+reseñas, precio actual + tachado + %, 4 beneficios en grid 2x2, selector 3 packs (Básico/Premium MÁS ELEGIDO/Mejor Opción), botón CTA verde grande, sellos de confianza
-4. DESCRIPCIÓN COMPLETA (fondo #f8fafc):
-   - Título "¿Por qué miles de personas en España ya lo tienen?"
-   - Caja roja "El problema que sufres ahora" con 3 bullets con ✗
-   - Caja verde "La solución" con texto que describe cómo el producto resuelve el problema
-   - 3 tarjetas de beneficios con emoji grande, título y descripción con dato concreto
-   - Barra de 3 estadísticas (horas ahorradas / euros ahorrados / % satisfechos)
-   - Caja amarilla de urgencia "¿Por qué actuar hoy?"
-5. RESEÑAS: 3 tarjetas con ★★★★★, texto detallado, nombre+ciudad españoles
-6. CHECKOUT (fondo #0f172a): título, formulario con nombre/email/teléfono/pack/dirección, botón pagar verde
-7. FAQ: 4 preguntas acordeón (2 genéricas + 2 específicas del producto)
+SECCIONES OBLIGATORIAS:
+
+1. BARRA SUPERIOR negra: envío gratis, 30 días devolución, stock limitado
+2. NAV sticky: logo, links (Descripción, Reseñas, FAQ, Pedir), carrito
+3. HERO 2 columnas:
+   - Izquierda: caja color con emoji del producto grande + precio + badge descuento + botón "REGALO INCLUIDO"
+   - Derecha: titulo con regalo GRATIS, ★★★★★ + reseñas, precio/tachado/%, 4 beneficios con iconos, selector 3 packs (Básico/Premium★MÁS ELEGIDO/Kit Completo), botón CTA verde "Quiero este producto", sellos confianza
+4. PROBLEMA & SOLUCIÓN (fondo #f8fafc): título impactante, caja roja con 3 problemas ✗, caja verde con solución, 3 beneficios con emoji grande + dato concreto
+5. RESEÑAS: 3 tarjetas ★★★★★ con texto detallado + nombre + ciudad española
+6. FORMULARIO PEDIDO (fondo oscuro #0f172a): campos nombre/email/teléfono/dirección, botón pagar verde
+7. FAQ: 4 preguntas con toggle JS
 8. FOOTER
 
-CARACTERÍSTICAS TÉCNICAS:
-- Botón flotante "✏️ Editar" abajo a la derecha que activa/desactiva contenteditable en todos los textos y muestra outline amarillo
-- Selector de color acento que cambia los botones CTA
-- Botón "💾 Guardar HTML" que descarga la página con los cambios
-- Al hacer click en la imagen, abre file input para subir foto
-- FAQ con toggle JS para abrir/cerrar
-- Pack selector con radio buttons que cambia el estado visual
+JS INCLUIDO (dentro del mismo HTML):
+- selectPack(el): cambia visualmente el pack seleccionado
+- toggleFaq(el): abre/cierra preguntas
+- Botón "✏️ Editar" flotante que activa contenteditable en todos los textos
+- Botón "💾 Guardar HTML" que descarga la página modificada
 
 REGLAS DE COPY:
-- Español de España, directo, sin clichés
-- El problema debe hacer que el cliente diga "eso me pasa a mí"
-- Los beneficios con números concretos cuando sea posible
-- Las reseñas: detalladas, creíbles, con ciudad y "hace X días"
+- Español de España
+- Título debe incluir el REGALO GRATIS con su valor en €
+- El problema: que el cliente diga "eso me pasa a mí exactamente"
+- Beneficios con datos (números, tiempos, ahorros)
+- Reseñas con nombres reales y ciudades españolas
 - Urgencia legítima (no inventada)
 
-URL SLUG: Al inicio del HTML como comentario <!-- slug: /nombre-producto-corto --> para usar como URL limpia en Facebook Ads
-
-Rellena TODO con datos reales del producto que te pasen. Si es una URL de AliExpress o Amazon, extrae el nombre del producto de la URL y genera la landing para ese producto.` },
+Si recibes una URL de Amazon/AliExpress, extrae el nombre del producto de la URL y genera la landing para ese producto específico.` },
 
   { id:"pluma", avatar:"https://randomuser.me/api/portraits/women/17.jpg",  name:"PLUMA",  subtitle:"Copywriter Persuasivo", initials:"PL", color:"#ec4899",
     role:"Marketing", task:"Escribiendo textos que convierten...", status:"online",
@@ -893,13 +887,18 @@ function ChatView({ agent, messages, input, setInput, loading, onSend, onKey, en
             {m.role==="assistant" && <div style={{ width:26,height:26,borderRadius:6,background:agent.color+"18",display:"flex",alignItems:"center",justifyContent:"center",fontSize:7.5,fontWeight:800,color:agent.color,flexShrink:0,marginBottom:2,alignSelf:"flex-start",marginTop:4 }}>{agent.initials}</div>}
             {m.role==="assistant" && (m.content.trimStart().startsWith("<!") || m.content.trimStart().startsWith("<html") || (m.content.trimStart().startsWith("<") && m.content.includes("</html>")))
               ? <div style={{ flex:1, borderRadius:"14px 14px 14px 3px", overflow:"hidden", border:`1px solid rgba(0,127,255,0.30)`, background:"#fff" }}>
-                  <iframe srcDoc={m.content} sandbox="allow-popups allow-popups-to-escape-sandbox"
-                    style={{ width:"100%", minHeight:"500px", border:"none", display:"block" }}
+                  <iframe srcDoc={m.content}
+                    sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts"
+                    style={{ width:"100%", minHeight:"600px", border:"none", display:"block" }}
                     onLoad={e => {
                       try {
                         const doc = e.target.contentDocument;
-                        const h = doc.documentElement.scrollHeight || doc.body.scrollHeight;
-                        e.target.style.height = Math.min(Math.max(h + 30, 400), 900) + "px";
+                        const h = Math.max(
+                          doc.documentElement.scrollHeight||0,
+                          doc.body ? doc.body.scrollHeight : 0,
+                          doc.documentElement.offsetHeight||0
+                        );
+                        if(h > 100) e.target.style.height = (h + 60) + "px";
                       } catch(err){}
                     }} />
                 </div>
@@ -1126,7 +1125,7 @@ function App() {
     setInput(""); setLoading(true);
     try {
       const res=await fetch("/api",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:4000,system:agent.prompt,messages:updated,agentId:agent.id})});
+        body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:8000,system:agent.prompt,messages:updated,agentId:agent.id})});
       const data=await res.json();
       const aiMsg={role:"assistant",content:data.response||"Error al generar respuesta."};
       setConvs(p=>({...p,[activeId]:[...updated,aiMsg]}));
