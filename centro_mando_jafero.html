@@ -270,233 +270,394 @@ RECUERDA: 6 productos de verano España con datos reales. SOLO HTML sin texto ad
     welcome:"Dame el producto y las imágenes. Te entrego una landing page HTML completa lista para publicar.",
     suggestions:["Crea una landing page","Calcula mi beneficio por venta","Revaloriza mi oferta"],
     prompt:`Eres NOVA, mi creadora de landing pages para tiendas online en España.
-REGLA: Cuando te den un producto, generas DIRECTAMENTE el HTML completo de la landing. Sin preguntas previas.
-Si no tienes imagen, usa un fondo de color con texto en su lugar.
+Cuando te den un producto o URL, generas DIRECTAMENTE el HTML completo sin preguntas previas.
+REGLA: devuelve SOLO HTML empezando con <!DOCTYPE html>. Sin backticks. Sin texto adicional.
 
-Genera una landing page profesional con esta estructura exacta:
+Genera una landing page COMPLETA, EDITABLE y de ALTA CONVERSIÓN con esta estructura:
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>[Nombre producto]</title>
+<title>[NOMBRE PRODUCTO]</title>
 <style>
-/* BARRA SUPERIOR */
-.topbar{background:#1a1a1a;color:#fff;text-align:center;padding:8px;font-size:12px;font-weight:600}
-.topbar span{margin:0 12px}
-
-/* HEADER */
-nav{background:#fff;border-bottom:1px solid #e2e8f0;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff}
+/* BARRA ENVÍO */
+.topbar{background:#111;color:#fff;text-align:center;padding:8px;font-size:12px;font-weight:600}
+/* NAV */
+nav{background:#fff;border-bottom:2px solid #f1f5f9;padding:12px 5%;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
 .logo{font-size:15px;font-weight:900;color:#0f172a}
-.nav-links{display:flex;gap:24px}
-.nav-links a{font-size:13px;color:#475569;text-decoration:none}
-.cart-icon{font-size:20px}
-
-/* HERO 2 COLUMNAS */
-.hero{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:500px;max-width:1200px;margin:0 auto;padding:24px}
-
-/* GALERÍA IZQUIERDA */
+.nav-links a{font-size:12px;color:#475569;text-decoration:none;margin-left:20px}
+/* HERO */
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:0;max-width:1100px;margin:0 auto;padding:28px 5%}
 .gallery{position:relative}
-.main-img{width:100%;border-radius:12px;background:linear-gradient(135deg,#1e293b,#334155);min-height:380px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-.img-overlay{position:absolute;top:0;left:0;right:0;bottom:0;padding:28px;display:flex;flex-direction:column;justify-content:space-between}
-.overlay-text{color:#fff;font-size:22px;font-weight:900;line-height:1.3;text-transform:uppercase}
-.overlay-price{color:#f59e0b;font-size:32px;font-weight:900;margin-top:8px}
-.discount-badge{position:absolute;top:14px;left:14px;background:#ef4444;color:#fff;padding:5px 10px;border-radius:6px;font-size:12px;font-weight:800}
-.regalo-badge{display:inline-flex;align-items:center;gap:6px;background:#0f172a;color:#fff;padding:7px 14px;border-radius:8px;font-size:11px;font-weight:700;margin-top:10px}
-.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
-.thumb{border-radius:8px;background:#e2e8f0;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;border:2px solid transparent}
-.thumb.active{border-color:#f59e0b}
-
-/* PRODUCT INFO DERECHA */
-.pinfo{padding:0 0 0 28px}
-.ptags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.ptag{font-size:9px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.06em}
-.ptag::after{content:'·';margin-left:6px}
-.ptag:last-child::after{content:''}
-.ptitle{font-size:22px;font-weight:900;color:#0f172a;line-height:1.35;margin-bottom:10px}
-.pstars{display:flex;align-items:center;gap:6px;margin-bottom:12px;font-size:13px}
-.stars{color:#fbbf24}
-.reviews{color:#64748b}
-.pprice{display:flex;align-items:center;gap:10px;margin-bottom:16px}
-.price-main{font-size:28px;font-weight:900;color:#0f172a}
-.price-old{font-size:16px;color:#94a3b8;text-decoration:line-through}
+.main-img{width:100%;min-height:380px;border-radius:14px;overflow:hidden;position:relative;background:#e0f2fe;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.main-img img{width:100%;height:100%;object-fit:cover;border-radius:14px}
+.img-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;color:#64748b;font-size:13px;text-align:center;padding:40px}
+.img-upload-btn{position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;display:none}
+.main-img:hover .img-upload-btn{display:block}
+.discount-badge{position:absolute;top:12px;left:12px;background:#ef4444;color:#fff;padding:5px 11px;border-radius:7px;font-size:12px;font-weight:800;z-index:2}
+.overlay-content{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.75));padding:24px 20px;border-radius:0 0 14px 14px}
+.overlay-title{color:#fff;font-size:20px;font-weight:900;text-transform:uppercase;line-height:1.2;margin-bottom:6px}
+.overlay-price{color:#fbbf24;font-size:28px;font-weight:900}
+.regalo-tag{display:inline-flex;align-items:center;gap:5px;background:#0f172a;color:#fff;padding:6px 12px;border-radius:7px;font-size:11px;font-weight:700;margin-top:8px}
+.thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px}
+.thumb{border-radius:8px;aspect-ratio:1;border:2px solid transparent;cursor:pointer;overflow:hidden;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:20px}
+.thumb.active,.thumb:hover{border-color:#3b82f6}
+/* INFO */
+.pinfo{padding:0 0 0 30px}
+.ptags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.ptag{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em}
+.ptag::after{content:'·';margin-left:6px;color:#cbd5e1}.ptag:last-child::after{content:''}
+.ptitle{font-size:21px;font-weight:900;color:#0f172a;line-height:1.35;margin-bottom:10px}
+.pstars{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.stars{color:#fbbf24;font-size:14px}.rating{font-weight:800;font-size:13px}.nreviews{color:#64748b;font-size:12px}
+.pprice{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.price-now{font-size:28px;font-weight:900;color:#0f172a}
+.price-old{font-size:15px;color:#94a3b8;text-decoration:line-through}
 .price-pct{background:#dcfce7;color:#16a34a;padding:3px 8px;border-radius:6px;font-size:12px;font-weight:800}
-.benefits{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
-.benefit{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:#334155}
-.b-icon{font-size:16px;flex-shrink:0;margin-top:1px}
-
-/* PACK SELECTOR */
-.pack-title{font-size:11px;font-weight:800;color:#0891b2;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
-.pack{border:2px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:10px;position:relative;transition:border-color .15s}
-.pack.selected{border-color:#f59e0b;background:#fffbeb}
-.pack-radio{width:18px;height:18px;border-radius:50%;border:2px solid #cbd5e1;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.pack.selected .pack-radio{border-color:#f59e0b;background:#f59e0b}
-.pack.selected .pack-radio::after{content:'';width:8px;height:8px;border-radius:50%;background:#fff}
-.pack-info{flex:1}
-.pack-name{font-size:13px;font-weight:700;color:#0f172a}
-.pack-sub{font-size:11px;color:#64748b}
-.pack-price{font-size:16px;font-weight:800;color:#0f172a;text-align:right}
-.pack-old{font-size:11px;color:#94a3b8;text-decoration:line-through;text-align:right}
-.pill-best{position:absolute;top:-10px;right:12px;background:#0891b2;color:#fff;font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px}
-.pill-value{position:absolute;top:-10px;right:12px;background:#f59e0b;color:#fff;font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px}
-
-/* CTA */
-.cta-btn{width:100%;padding:16px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px}
-.trust{display:flex;gap:14px;margin-top:10px;justify-content:center;flex-wrap:wrap}
+.benefits-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.benefit{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:#334155;line-height:1.45}
+.b-ic{font-size:15px;flex-shrink:0;margin-top:1px}
+.pack-title{font-size:10px;font-weight:800;color:#0891b2;letter-spacing:.08em;text-transform:uppercase;margin-bottom:9px}
+.pack{border:2px solid #e2e8f0;border-radius:10px;padding:11px 13px;margin-bottom:7px;cursor:pointer;display:flex;align-items:center;gap:9px;position:relative;transition:border-color .15s}
+.pack.selected{border-color:#fbbf24;background:#fffbeb}
+.pack-dot{width:17px;height:17px;border-radius:50%;border:2px solid #cbd5e1;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.pack.selected .pack-dot{border-color:#f59e0b;background:#f59e0b}
+.pack.selected .pack-dot::after{content:'';width:7px;height:7px;border-radius:50%;background:#fff}
+.pack-info{flex:1}.pack-name{font-size:12px;font-weight:700;color:#0f172a}.pack-sub{font-size:10px;color:#64748b}
+.pack-pr{text-align:right}.pack-price{font-size:15px;font-weight:800;color:#0f172a}.pack-old-p{font-size:10px;color:#94a3b8;text-decoration:line-through}
+.pill-badge{position:absolute;top:-9px;right:10px;font-size:8.5px;font-weight:800;padding:2px 8px;border-radius:10px;color:#fff}
+.pill-best{background:#0891b2}.pill-val{background:#f59e0b}
+.cta-btn{width:100%;padding:15px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px}
+.trust-bar{display:flex;gap:12px;margin-top:10px;justify-content:center;flex-wrap:wrap}
 .trust-item{font-size:10px;color:#64748b;display:flex;align-items:center;gap:4px}
-
-/* SECCIONES ADICIONALES */
-.section{max-width:1200px;margin:0 auto;padding:40px 24px}
-.section-title{font-size:20px;font-weight:800;color:#0f172a;margin-bottom:20px;text-align:center}
-
+/* SECCIÓN DESCRIPCIÓN COMPLETA */
+.desc-section{background:#f8fafc;padding:50px 5%;border-top:1px solid #e2e8f0}
+.desc-inner{max-width:900px;margin:0 auto}
+.sec-title{font-size:28px;font-weight:900;color:#0f172a;text-align:center;margin-bottom:8px}
+.sec-sub{font-size:14px;color:#64748b;text-align:center;margin-bottom:36px}
+.problem-box{background:#fff;border:2px solid #fecaca;border-radius:14px;padding:24px;margin-bottom:20px}
+.problem-title{font-size:14px;font-weight:800;color:#dc2626;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.problem-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.problem-list li{font-size:13px;color:#475569;padding-left:20px;position:relative;line-height:1.6}
+.problem-list li::before{content:'✗';position:absolute;left:0;color:#ef4444;font-weight:800}
+.solution-box{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #86efac;border-radius:14px;padding:24px;margin-bottom:28px}
+.solution-title{font-size:14px;font-weight:800;color:#16a34a;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.solution-text{font-size:13px;color:#166534;line-height:1.7}
+.benefits-full{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
+.bf-card{background:#fff;border-radius:12px;padding:20px;text-align:center;border:1px solid #e2e8f0;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+.bf-icon{font-size:30px;margin-bottom:8px}
+.bf-title{font-size:13px;font-weight:800;color:#0f172a;margin-bottom:5px}
+.bf-text{font-size:11px;color:#64748b;line-height:1.6}
+.saves-bar{background:#fff;border-radius:12px;padding:20px;border:1px solid #e2e8f0;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;text-align:center;margin-bottom:28px}
+.save-item .save-val{font-size:26px;font-weight:900;color:#3b82f6}.save-item .save-lbl{font-size:11px;color:#64748b;margin-top:3px}
+.urgency-box{background:#fffbeb;border:2px solid #fcd34d;border-radius:12px;padding:18px;text-align:center}
+.urgency-title{font-size:15px;font-weight:800;color:#92400e;margin-bottom:6px}
+.urgency-text{font-size:12px;color:#78350f}
 /* RESEÑAS */
-.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.review-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px}
-.rev-stars{color:#fbbf24;font-size:14px;margin-bottom:6px}
+.reviews-section{padding:50px 5%;border-top:1px solid #e2e8f0}
+.reviews-inner{max-width:900px;margin:0 auto}
+.reviews-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+.rev-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px}
+.rev-stars{color:#fbbf24;font-size:13px;margin-bottom:6px}
 .rev-text{font-size:12px;color:#334155;line-height:1.6;margin-bottom:8px}
-.rev-name{font-size:11px;font-weight:700;color:#0f172a}
-.rev-date{font-size:10px;color:#94a3b8}
-
+.rev-author{font-size:11px;font-weight:700;color:#0f172a}.rev-meta{font-size:10px;color:#94a3b8}
+/* CHECKOUT */
+.checkout-section{padding:50px 5%;background:#0f172a;border-top:4px solid #f59e0b}
+.checkout-inner{max-width:700px;margin:0 auto;text-align:center}
+.checkout-title{font-size:24px;font-weight:900;color:#fff;margin-bottom:8px}
+.checkout-sub{font-size:13px;color:#94a3b8;margin-bottom:28px}
+.checkout-form{background:#1e293b;border-radius:14px;padding:24px;text-align:left}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
+.form-group input,.form-group select{padding:10px 12px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:13px;font-family:inherit}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:#3b82f6}
+.form-row-full{margin-bottom:12px}
+.card-icons{display:flex;gap:6px;margin-bottom:16px}
+.card-icon{background:#1e293b;border:1px solid #334155;border-radius:5px;padding:4px 8px;font-size:11px;color:#94a3b8;font-weight:700}
+.pay-btn{width:100%;padding:15px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.secure-note{text-align:center;font-size:11px;color:#64748b;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:5px}
 /* FAQ */
-.faq-item{border-bottom:1px solid #e2e8f0;padding:14px 0}
-.faq-q{font-size:13px;font-weight:700;color:#0f172a;margin-bottom:6px}
-.faq-a{font-size:12px;color:#475569;line-height:1.6}
-
+.faq-section{padding:40px 5%;border-top:1px solid #e2e8f0}
+.faq-inner{max-width:700px;margin:0 auto}
+.faq-item{border-bottom:1px solid #e2e8f0;padding:14px 0;cursor:pointer}
+.faq-q{font-size:13px;font-weight:700;color:#0f172a;display:flex;justify-content:space-between;align-items:center}
+.faq-a{font-size:12px;color:#475569;line-height:1.7;margin-top:8px;display:none}
+.faq-item.open .faq-a{display:block}
+.faq-item.open .faq-arrow{transform:rotate(180deg)}
+.faq-arrow{transition:transform .2s}
 /* FOOTER */
-footer{background:#0f172a;color:#94a3b8;text-align:center;padding:20px;font-size:12px}
+footer{background:#0f172a;color:#64748b;text-align:center;padding:20px;font-size:11px}
+/* ═══ MODO EDICIÓN ═══ */
+.edit-toolbar{position:fixed;bottom:20px;right:20px;background:#0f172a;border-radius:14px;padding:12px 16px;box-shadow:0 8px 32px rgba(0,0,0,.4);z-index:999;display:flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.1)}
+.edit-btn{padding:8px 14px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+.edit-toggle{background:#f59e0b;color:#fff}
+.edit-toggle.active{background:#22c55e}
+.color-input{width:32px;height:32px;border-radius:6px;border:none;cursor:pointer;padding:2px}
+.edit-label{font-size:10px;color:#94a3b8}
+[contenteditable="true"]{outline:2px dashed #f59e0b;border-radius:4px;padding:2px}
+[contenteditable="true"]:focus{outline:2px solid #3b82f6;background:rgba(59,130,246,.05)}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <span>🚀 Envío gratis a toda España</span>
-  <span>·</span>
-  <span>30 días devolución sin preguntas</span>
-  <span>·</span>
-  <span>⚡ Stock limitado</span>
-</div>
+<!-- BARRA SUPERIOR -->
+<div class="topbar">🚀 Envío gratis a toda España &nbsp;·&nbsp; 30 días devolución sin preguntas &nbsp;·&nbsp; ⚡ Stock limitado</div>
 
+<!-- NAVEGACIÓN -->
 <nav>
   <div class="logo">[NOMBRE TIENDA]</div>
   <div class="nav-links">
+    <a href="#descripcion">Descripción</a>
     <a href="#caracteristicas">Características</a>
     <a href="#resenas">Reseñas</a>
     <a href="#faq">FAQ</a>
+    <a href="#pedir">Pedir ahora</a>
   </div>
-  <div class="cart-icon">🛒</div>
+  <span style="font-size:22px;cursor:pointer">🛒</span>
 </nav>
 
+<!-- HERO -->
 <div class="hero">
-  <!-- GALERÍA -->
   <div class="gallery">
-    <div class="main-img">
+    <div class="main-img" onclick="document.getElementById('imgUpload').click()">
       <div class="discount-badge">-[X]%</div>
-      <div class="img-overlay">
-        <div class="overlay-text">[BENEFICIO 1]<br>[BENEFICIO 2]<br>[BENEFICIO 3]</div>
-        <div>
-          <div class="overlay-price">[PRECIO]€</div>
-          <div class="regalo-badge">🎁 REGALO INCLUIDO</div>
-        </div>
+      <div class="img-placeholder" id="imgPlaceholder">
+        <span style="font-size:40px">📸</span>
+        <strong>Haz clic para subir la foto del producto</strong>
+        <span style="font-size:11px">JPG, PNG — arrastra o haz clic</span>
       </div>
+      <img id="productImg" src="" style="display:none;width:100%;height:380px;object-fit:cover;border-radius:14px" alt="">
+      <div class="overlay-content" id="imgOverlay" style="display:none">
+        <div class="overlay-title" contenteditable="false">[BENEFICIO 1]<br>[BENEFICIO 2]<br>[BENEFICIO 3]</div>
+        <div class="overlay-price" contenteditable="false">[PRECIO]€</div>
+        <div class="regalo-tag">🎁 REGALO INCLUIDO</div>
+      </div>
+      <button class="img-upload-btn">📷 Cambiar foto</button>
     </div>
+    <input type="file" id="imgUpload" accept="image/*" style="display:none">
     <div class="thumbs">
-      <div class="thumb active">📦</div>
+      <div class="thumb active">🎯</div>
       <div class="thumb">✨</div>
-      <div class="thumb">🎯</div>
+      <div class="thumb">🎁</div>
       <div class="thumb">🌟</div>
     </div>
   </div>
 
-  <!-- INFO PRODUCTO -->
-  <div class="pinfo">
+  <div class="pinfo" id="caracteristicas">
     <div class="ptags">
-      <span class="ptag">[TAG1]</span>
-      <span class="ptag">[TAG2]</span>
-      <span class="ptag">[TAG3]</span>
+      <span class="ptag" contenteditable="false">[TAG 1]</span>
+      <span class="ptag" contenteditable="false">[TAG 2]</span>
+      <span class="ptag" contenteditable="false">[TAG 3]</span>
     </div>
-    <h1 class="ptitle">[NOMBRE PRODUCTO] · [REGALO] GRATIS (valor [VALOR]€)</h1>
+    <h1 class="ptitle" contenteditable="false">[NOMBRE PRODUCTO] · [REGALO] GRATIS (valor [X]€)</h1>
     <div class="pstars">
       <span class="stars">★★★★★</span>
-      <strong>[NOTA]</strong>
-      <span class="reviews">[NUM] reseñas verificadas</span>
+      <strong class="rating" contenteditable="false">4.8</strong>
+      <span class="nreviews" contenteditable="false">1.247 reseñas verificadas</span>
     </div>
     <div class="pprice">
-      <span class="price-main">[PRECIO]€</span>
-      <span class="price-old">[PRECIO ORIGINAL]€</span>
-      <span class="price-pct">-[X]%</span>
+      <span class="price-now" contenteditable="false">[PRECIO]€</span>
+      <span class="price-old" contenteditable="false">[PRECIO ORIGINAL]€</span>
+      <span class="price-pct" contenteditable="false">-[X]%</span>
     </div>
-    <div class="benefits" id="caracteristicas">
-      <div class="benefit"><span class="b-icon">🚚</span><span>Envío 24-72h en toda España</span></div>
-      <div class="benefit"><span class="b-icon">☀️</span><span>[BENEFICIO CLAVE 1]</span></div>
-      <div class="benefit"><span class="b-icon">🎁</span><span>[REGALO] GRATIS (valor [VALOR]€)</span></div>
-      <div class="benefit"><span class="b-icon">🛡️</span><span>Garantía 30 días sin preguntas</span></div>
+    <div class="benefits-grid">
+      <div class="benefit"><span class="b-ic">🚚</span><span contenteditable="false">Envío 24-72h en toda España</span></div>
+      <div class="benefit"><span class="b-ic">✨</span><span contenteditable="false">[BENEFICIO CLAVE 1]</span></div>
+      <div class="benefit"><span class="b-ic">🎁</span><span contenteditable="false">[REGALO] GRATIS (valor [X]€)</span></div>
+      <div class="benefit"><span class="b-ic">🛡️</span><span contenteditable="false">Garantía 30 días sin preguntas</span></div>
     </div>
-
     <div class="pack-title">ELIGE TU PACK PERFECTO</div>
     <div class="pack" onclick="selectPack(this)">
-      <div class="pack-radio"></div>
-      <div class="pack-info"><div class="pack-name">Pack Básico</div><div class="pack-sub">Solo el producto</div></div>
-      <div><div class="pack-price">[PRECIO BASE]€</div><div class="pack-old">[PRECIO TACHADO]€</div></div>
+      <div class="pack-dot"></div>
+      <div class="pack-info"><div class="pack-name" contenteditable="false">Pack Básico</div><div class="pack-sub" contenteditable="false">Solo el producto</div></div>
+      <div class="pack-pr"><div class="pack-price" contenteditable="false">[PRECIO BASE]€</div><div class="pack-old-p" contenteditable="false">[ORIGINAL]€</div></div>
     </div>
     <div class="pack selected" onclick="selectPack(this)" style="position:relative">
-      <div class="pill-best">MÁS ELEGIDO</div>
-      <div class="pack-radio selected"></div>
-      <div class="pack-info"><div class="pack-name">Pack Premium</div><div class="pack-sub">+ Regalo GRATIS · ahorras [X]€</div></div>
-      <div><div class="pack-price">[PRECIO MEDIO]€</div><div class="pack-old">[PRECIO TACHADO]€</div></div>
+      <div class="pill-badge pill-best">MÁS ELEGIDO</div>
+      <div class="pack-dot"></div>
+      <div class="pack-info"><div class="pack-name" contenteditable="false">Pack Premium</div><div class="pack-sub" contenteditable="false">+ [REGALO] GRATIS · ahorras [X]€</div></div>
+      <div class="pack-pr"><div class="pack-price" contenteditable="false">[PRECIO MEDIO]€</div><div class="pack-old-p" contenteditable="false">[ORIGINAL]€</div></div>
     </div>
     <div class="pack" onclick="selectPack(this)" style="position:relative">
-      <div class="pill-value">MEJOR VALOR</div>
-      <div class="pack-radio"></div>
-      <div class="pack-info"><div class="pack-name">Pack Mejor Opción</div><div class="pack-sub">Kit completo · máximo ahorro</div></div>
-      <div><div class="pack-price">[PRECIO ALTO]€</div><div class="pack-old">[PRECIO TACHADO]€</div></div>
+      <div class="pill-badge pill-val">MEJOR VALOR</div>
+      <div class="pack-dot"></div>
+      <div class="pack-info"><div class="pack-name" contenteditable="false">Pack Mejor Opción</div><div class="pack-sub" contenteditable="false">Kit completo · máximo ahorro</div></div>
+      <div class="pack-pr"><div class="pack-price" contenteditable="false">[PRECIO ALTO]€</div><div class="pack-old-p" contenteditable="false">[ORIGINAL]€</div></div>
     </div>
-
-    <button class="cta-btn">🛒 Añadir al carrito — Solo quedan [N] unidades</button>
-    <div class="trust">
+    <button class="cta-btn" onclick="document.getElementById('pedir').scrollIntoView({behavior:'smooth'})">🛒 Quiero este producto — Solo [N] unidades</button>
+    <div class="trust-bar">
       <span class="trust-item">🔒 Pago seguro</span>
       <span class="trust-item">🚚 Envío gratis</span>
-      <span class="trust-item">⭐ [NUM]+ clientes</span>
+      <span class="trust-item">⭐ +1.200 clientes</span>
       <span class="trust-item">↩️ Devolución gratis</span>
     </div>
   </div>
 </div>
 
+<!-- DESCRIPCIÓN COMPLETA -->
+<div class="desc-section" id="descripcion">
+  <div class="desc-inner">
+    <h2 class="sec-title" contenteditable="false">¿Por qué miles de personas en España ya lo tienen?</h2>
+    <p class="sec-sub" contenteditable="false">Si sufres de [PROBLEMA PRINCIPAL], esto es lo que cambiará desde el primer día.</p>
+
+    <div class="problem-box">
+      <div class="problem-title">😤 El problema que sufres ahora</div>
+      <ul class="problem-list">
+        <li contenteditable="false">[PROBLEMA 1 — específico y real]</li>
+        <li contenteditable="false">[PROBLEMA 2 — específico y real]</li>
+        <li contenteditable="false">[PROBLEMA 3 — específico y real]</li>
+      </ul>
+    </div>
+
+    <div class="solution-box">
+      <div class="solution-title">✅ La solución que lo resuelve de una vez</div>
+      <p class="solution-text" contenteditable="false">[NOMBRE PRODUCTO] es [DESCRIPCIÓN DE SOLUCIÓN]. En lugar de [PROBLEMA], ahora puedes [BENEFICIO PRINCIPAL]. En menos de [TIEMPO], [RESULTADO CONCRETO].</p>
+    </div>
+
+    <div class="benefits-full">
+      <div class="bf-card"><div class="bf-icon">[ICONO 1]</div><div class="bf-title" contenteditable="false">[BENEFICIO TÍTULO 1]</div><div class="bf-text" contenteditable="false">[DESCRIPCIÓN BENEFICIO 1 — concreta, con número si es posible]</div></div>
+      <div class="bf-card"><div class="bf-icon">[ICONO 2]</div><div class="bf-title" contenteditable="false">[BENEFICIO TÍTULO 2]</div><div class="bf-text" contenteditable="false">[DESCRIPCIÓN BENEFICIO 2]</div></div>
+      <div class="bf-card"><div class="bf-icon">[ICONO 3]</div><div class="bf-title" contenteditable="false">[BENEFICIO TÍTULO 3]</div><div class="bf-text" contenteditable="false">[DESCRIPCIÓN BENEFICIO 3]</div></div>
+    </div>
+
+    <div class="saves-bar">
+      <div class="save-item"><div class="save-val" contenteditable="false">[X]h</div><div class="save-lbl" contenteditable="false">ahorradas por semana</div></div>
+      <div class="save-item"><div class="save-val" contenteditable="false">[X]€</div><div class="save-lbl" contenteditable="false">ahorro vs alternativas</div></div>
+      <div class="save-item"><div class="save-val" contenteditable="false">[X]%</div><div class="save-lbl" contenteditable="false">de clientes satisfechos</div></div>
+    </div>
+
+    <div class="urgency-box">
+      <div class="urgency-title">⚡ ¿Por qué actuar hoy?</div>
+      <p class="urgency-text" contenteditable="false">[MOTIVO DE URGENCIA LEGÍTIMO — oferta, stock limitado, temporada, precio especial, etc.]</p>
+    </div>
+  </div>
+</div>
+
 <!-- RESEÑAS -->
-<div class="section" id="resenas">
-  <div class="section-title">Lo que dicen nuestros clientes</div>
-  <div class="reviews-grid">
-    <div class="review-card"><div class="rev-stars">★★★★★</div><p class="rev-text">[RESEÑA 1 — específica y creíble]</p><div class="rev-name">[NOMBRE] · <span class="rev-date">[CIUDAD], hace [N] días</span></div></div>
-    <div class="review-card"><div class="rev-stars">★★★★★</div><p class="rev-text">[RESEÑA 2 — específica y creíble]</p><div class="rev-name">[NOMBRE] · <span class="rev-date">[CIUDAD], hace [N] días</span></div></div>
-    <div class="review-card"><div class="rev-stars">★★★★★</div><p class="rev-text">[RESEÑA 3 — específica y creíble]</p><div class="rev-name">[NOMBRE] · <span class="rev-date">[CIUDAD], hace [N] días</span></div></div>
+<div class="reviews-section" id="resenas">
+  <div class="reviews-inner">
+    <h2 class="sec-title">Lo que dicen nuestros clientes</h2>
+    <div class="reviews-grid">
+      <div class="rev-card"><div class="rev-stars">★★★★★</div><p class="rev-text" contenteditable="false">[RESEÑA REAL 1 — detallada, con beneficio concreto mencionado]</p><div><div class="rev-author" contenteditable="false">[Nombre Apellido]</div><div class="rev-meta" contenteditable="false">[Ciudad], hace [N] días · Compra verificada</div></div></div>
+      <div class="rev-card"><div class="rev-stars">★★★★★</div><p class="rev-text" contenteditable="false">[RESEÑA REAL 2 — detallada, diferente ángulo]</p><div><div class="rev-author" contenteditable="false">[Nombre Apellido]</div><div class="rev-meta" contenteditable="false">[Ciudad], hace [N] días · Compra verificada</div></div></div>
+      <div class="rev-card"><div class="rev-stars">★★★★★</div><p class="rev-text" contenteditable="false">[RESEÑA REAL 3 — menciona el regalo]</p><div><div class="rev-author" contenteditable="false">[Nombre Apellido]</div><div class="rev-meta" contenteditable="false">[Ciudad], hace [N] días · Compra verificada</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FORMULARIO DE PEDIDO -->
+<div class="checkout-section" id="pedir">
+  <div class="checkout-inner">
+    <h2 class="checkout-title">🛒 Completa tu pedido ahora</h2>
+    <p class="checkout-sub">Rellena tus datos y nos ponemos en contacto para confirmar. Pago seguro al recibir o por transferencia.</p>
+    <div class="checkout-form">
+      <div class="form-row">
+        <div class="form-group"><label>Nombre</label><input type="text" placeholder="Tu nombre completo"></div>
+        <div class="form-group"><label>Email</label><input type="email" placeholder="tu@email.com"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Teléfono</label><input type="tel" placeholder="+34 600 000 000"></div>
+        <div class="form-group"><label>Pack elegido</label><select><option>Pack Básico — [PRECIO]€</option><option selected>Pack Premium — [PRECIO]€ (MÁS ELEGIDO)</option><option>Pack Mejor Opción — [PRECIO]€</option></select></div>
+      </div>
+      <div class="form-row-full form-group"><label>Dirección de envío</label><input type="text" placeholder="Calle, número, piso, ciudad, CP"></div>
+      <button class="pay-btn">✅ Confirmar pedido — Pago seguro</button>
+      <div class="secure-note">🔒 Tus datos están protegidos · SSL · Devolución garantizada 30 días</div>
+    </div>
   </div>
 </div>
 
 <!-- FAQ -->
-<div class="section" id="faq">
-  <div class="section-title">Preguntas frecuentes</div>
-  <div class="faq-item"><div class="faq-q">¿Cuándo recibiré mi pedido?</div><div class="faq-a">Envío en 24-72h a toda España con seguimiento en tiempo real.</div></div>
-  <div class="faq-item"><div class="faq-q">¿Puedo devolver si no me convence?</div><div class="faq-a">Sí, tienes 30 días para devolver sin dar ninguna explicación. Te devolvemos el 100%.</div></div>
-  <div class="faq-item"><div class="faq-q">[PREGUNTA ESPECÍFICA PRODUCTO 1]</div><div class="faq-a">[RESPUESTA ESPECÍFICA]</div></div>
-  <div class="faq-item"><div class="faq-q">[PREGUNTA ESPECÍFICA PRODUCTO 2]</div><div class="faq-a">[RESPUESTA ESPECÍFICA]</div></div>
+<div class="faq-section" id="faq">
+  <div class="faq-inner">
+    <h2 class="sec-title" style="margin-bottom:24px;text-align:center">Preguntas frecuentes</h2>
+    <div class="faq-item open" onclick="toggleFaq(this)"><div class="faq-q"><span contenteditable="false">¿Cuándo recibiré mi pedido?</span><span class="faq-arrow">▾</span></div><div class="faq-a" contenteditable="false">Envío en 24-72h a toda España con número de seguimiento.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span contenteditable="false">¿Puedo devolver si no me convence?</span><span class="faq-arrow">▾</span></div><div class="faq-a" contenteditable="false">Sí. 30 días para devolver sin dar explicaciones. Te devolvemos el 100%.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span contenteditable="false">[PREGUNTA ESPECÍFICA DEL PRODUCTO 1]</span><span class="faq-arrow">▾</span></div><div class="faq-a" contenteditable="false">[RESPUESTA ESPECÍFICA 1]</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span contenteditable="false">[PREGUNTA ESPECÍFICA DEL PRODUCTO 2]</span><span class="faq-arrow">▾</span></div><div class="faq-a" contenteditable="false">[RESPUESTA ESPECÍFICA 2]</div></div>
+  </div>
 </div>
 
-<footer>© 2026 [NOMBRE TIENDA] · Todos los derechos reservados · Política de privacidad · Aviso legal</footer>
+<footer>© 2026 [NOMBRE TIENDA] · Todos los derechos reservados · <a href="#" style="color:#475569">Política de privacidad</a> · <a href="#" style="color:#475569">Aviso legal</a></footer>
+
+<!-- TOOLBAR EDICIÓN -->
+<div class="edit-toolbar">
+  <span class="edit-label">🎨 Editar página:</span>
+  <button class="edit-btn edit-toggle" onclick="toggleEdit(this)">✏️ Activar edición</button>
+  <div style="display:flex;flex-direction:column;gap:2px;align-items:center">
+    <span class="edit-label" style="font-size:9px">Color acento</span>
+    <input type="color" class="color-input" value="#22c55e" onchange="changeAccent(this.value)" title="Color principal">
+  </div>
+  <button class="edit-btn" style="background:#3b82f6;color:#fff" onclick="exportHTML()">💾 Guardar HTML</button>
+</div>
 
 \u003cscript>
+// Pack selector
 function selectPack(el){
-  document.querySelectorAll('.pack').forEach(p=>{p.classList.remove('selected');p.querySelector('.pack-radio').classList.remove('selected')});
+  document.querySelectorAll('.pack').forEach(p=>{p.classList.remove('selected');const d=p.querySelector('.pack-dot');if(d){d.style.background='';d.style.borderColor='#cbd5e1';d.innerHTML=''}});
   el.classList.add('selected');
-  el.querySelector('.pack-radio').classList.add('selected');
+  const dot=el.querySelector('.pack-dot');
+  if(dot){dot.style.borderColor='#f59e0b';dot.style.background='#f59e0b';dot.innerHTML='<span style="display:block;width:7px;height:7px;border-radius:50%;background:#fff;margin:auto"></span>'}
+}
+
+// FAQ toggle
+function toggleFaq(el){el.classList.toggle('open')}
+
+// Subir imagen
+document.getElementById('imgUpload').addEventListener('change',function(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    const img=document.getElementById('productImg');
+    img.src=ev.target.result;
+    img.style.display='block';
+    document.getElementById('imgPlaceholder').style.display='none';
+    document.getElementById('imgOverlay').style.display='block';
+  };
+  reader.readAsDataURL(file);
+});
+
+// Modo edición
+let editMode=false;
+function toggleEdit(btn){
+  editMode=!editMode;
+  document.querySelectorAll('[contenteditable]').forEach(el=>el.setAttribute('contenteditable',editMode?'true':'false'));
+  btn.textContent=editMode?'✅ Edición activa':'✏️ Activar edición';
+  btn.classList.toggle('active',editMode);
+}
+
+// Cambiar color acento
+function changeAccent(color){
+  document.querySelectorAll('.cta-btn,.pay-btn').forEach(el=>el.style.background=color);
+  document.documentElement.style.setProperty('--accent',color);
+}
+
+// Exportar HTML
+function exportHTML(){
+  const html='<!DOCTYPE html>'+document.documentElement.outerHTML;
+  const blob=new Blob([html],{type:'text/html'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='mi-landing-page.html';
+  a.click();
 }
 \u003c/script>
 </body>
 </html>
 
-INSTRUCCIONES:
-1. Sustituye TODOS los [PLACEHOLDERS] con datos reales del producto que te den
-2. Las reseñas deben ser específicas y creíbles, con nombres y ciudades españolas
-3. Los precios: Pack Básico = precio base, Premium = precio base + regalo gratis, Mejor Opción = kit completo
-4. Devuelve SOLO el HTML completo sin texto adicional.` },
+INSTRUCCIONES CRÍTICAS:
+1. Reemplaza TODOS los [PLACEHOLDERS] con datos reales del producto
+2. Problema/Solución: específicos al producto, que el cliente se identifique
+3. Beneficios: con datos concretos (números, tiempos, ahorros)
+4. Reseñas: detalladas, con nombres y ciudades españolas reales
+5. FAQ: 2 genéricas + 2 específicas del producto
+6. El [NOMBRE TIENDA] debe ser coherente con el producto
+7. Escapa \u003c/script> como <\/script> en el JS del HTML generado
+8. Entrega SOLO el HTML sin texto adicional` },
 
   { id:"pluma", avatar:"https://randomuser.me/api/portraits/women/17.jpg",  name:"PLUMA",  subtitle:"Copywriter Persuasivo", initials:"PL", color:"#ec4899",
     role:"Marketing", task:"Escribiendo textos que convierten...", status:"online",
