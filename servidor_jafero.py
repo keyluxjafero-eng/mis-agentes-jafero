@@ -17,7 +17,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path in ["/", "/index.html"]:
-            for name in ["centro_mando_jafero.html"]:
+            for name in ["centro_mando_jafero.html", "index.html"]:
                 if os.path.exists(name):
                     with open(name, "r", encoding="utf-8") as f:
                         html = f.read()
@@ -37,7 +37,13 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         length = int(self.headers.get("Content-Length", 0))
-        data = json.loads(self.rfile.read(length))
+        raw_body = self.rfile.read(length)
+
+        try:
+            data = json.loads(raw_body)
+        except:
+            self._json({"response": "JSON inválido"})
+            return
 
         if not API_KEY:
             self._json({"response": "Falta API KEY"})
@@ -60,18 +66,23 @@ class Handler(BaseHTTPRequestHandler):
         )
 
         try:
-            with urllib.request.urlopen(req) as res:
+            with urllib.request.urlopen(req, timeout=120) as res:
                 result = json.loads(res.read().decode("utf-8"))
                 respuesta = result["content"][0]["text"]
+
+        except urllib.error.HTTPError as e:
+            error = e.read().decode()
+            respuesta = f"Error HTTP {e.code}: {error}"
+
         except Exception as e:
-            respuesta = str(e)
+            respuesta = f"Error general: {str(e)}"
 
         self._json({"response": respuesta})
 
     def _json(self, obj):
-        body = json.dumps(obj).encode("utf-8")
+        body = json.dumps(obj, ensure_ascii=False).encode("utf-8")
         self.send_response(200)
-        self.send_header("Content-type", "application/json")
+        self.send_header("Content-type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self._cors()
         self.end_headers()
@@ -83,4 +94,5 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
 
 if __name__ == "__main__":
+    print("Servidor iniciado correctamente")
     HTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
