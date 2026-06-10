@@ -3,11 +3,7 @@ import json, urllib.request, urllib.error, os
 
 API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 PORT    = int(os.getenv("PORT", 10000))
-
-# Nombre del modelo separado para evitar corrupcion
-_M1 = "cl"
-_M2 = "aude-3-haiku-20240307"
-MODEL = _M1 + _M2   # = claude-3-haiku-20240307
+MODEL   = "claude-haiku-4-5-20251001"
 
 class Handler(BaseHTTPRequestHandler):
 
@@ -43,7 +39,7 @@ class Handler(BaseHTTPRequestHandler):
             self._json({"response": "Error: JSON invalido"}); return
 
         if not API_KEY:
-            self._json({"response": "Error: ANTHROPIC_API_KEY no configurada"}); return
+            self._json({"response": "Error: ANTHROPIC_API_KEY no configurada en Render"}); return
 
         payload = {
             "model"     : MODEL,
@@ -53,7 +49,7 @@ class Handler(BaseHTTPRequestHandler):
         if data.get("system"):
             payload["system"] = data["system"]
 
-        print(f"  -> modelo={MODEL} tokens={payload["max_tokens"]}")
+        print(f"  -> modelo={MODEL} | tokens={payload['max_tokens']}")
 
         try:
             req = urllib.request.Request(
@@ -69,10 +65,14 @@ class Handler(BaseHTTPRequestHandler):
                 result    = json.loads(res.read())
                 respuesta = result["content"][0]["text"]
                 print(f"  OK {len(respuesta)} chars")
+
         except urllib.error.HTTPError as e:
             err = e.read().decode("utf-8", errors="ignore")
+            print(f"  ERROR {e.code}: {err[:200]}")
             respuesta = f"Error {e.code}: {err[:400]}"
+
         except Exception as e:
+            print(f"  ERROR: {e}")
             respuesta = f"Error: {str(e)}"
 
         self._json({"response": respuesta})
@@ -80,7 +80,7 @@ class Handler(BaseHTTPRequestHandler):
     def _json(self, obj):
         b = json.dumps(obj, ensure_ascii=False).encode("utf-8")
         self.send_response(200)
-        self.send_header("Content-type",   "application/json; charset=utf-8")
+        self.send_header("Content-type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(b)))
         self._cors(); self.end_headers(); self.wfile.write(b)
 
@@ -90,5 +90,5 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
 
 if __name__ == "__main__":
-    print(f"Jafero Backend | Puerto={PORT} | Modelo={MODEL} | Key={bool(API_KEY)}")
+    print(f"Jafero Backend | Puerto={PORT} | Modelo={MODEL} | Key={'OK' if API_KEY else 'NO CONFIGURADA'}")
     HTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
