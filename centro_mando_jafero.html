@@ -696,7 +696,7 @@ function ChatView({ agent, messages, input, setInput, loading, onSend, onKey, en
           <span style={{ fontSize:9,color:agent.color,fontWeight:700 }}>Activo</span>
         </div>
       </div>
-      <div style={{ flex:1,overflowY:"auto",padding:"20px 22px 12px",display:"flex",flexDirection:"column",gap:12 }}>
+      <div style={{ flex:1,overflowY:"auto",padding:"16px 12px 12px",display:"flex",flexDirection:"column",gap:12 }}>
         {messages.length===0 && (
           <div style={{ textAlign:"center",padding:"32px 20px",animation:"fadeIn 0.4s ease" }}>
             {agent.avatar
@@ -715,13 +715,25 @@ function ChatView({ agent, messages, input, setInput, loading, onSend, onKey, en
           </div>
         )}
         {messages.map((m,i)=>(
-          <div key={i} style={{ display:"flex",justifyContent:m.role==="user"?"flex-end":"flex-start",gap:8,alignItems:"flex-end",animation:"fadeIn 0.2s ease" }}>
-            {m.role==="assistant" && <div style={{ width:26,height:26,borderRadius:6,background:agent.color+"18",display:"flex",alignItems:"center",justifyContent:"center",fontSize:7.5,fontWeight:800,color:agent.color,flexShrink:0,marginBottom:2 }}>{agent.initials}</div>}
+          <div key={i} style={{
+            display:"flex",
+            justifyContent: m.role==="user" ? "flex-end" : "flex-start",
+            gap:8, alignItems:"flex-end", animation:"fadeIn 0.2s ease",
+            // HTML responses get full width treatment
+            width: (m.role==="assistant" && (m.content.trimStart().startsWith("<!") || m.content.includes("</html>"))) ? "100%" : "auto"
+          }}>
+            {m.role==="assistant" && <div style={{ width:26,height:26,borderRadius:6,background:agent.color+"18",display:"flex",alignItems:"center",justifyContent:"center",fontSize:7.5,fontWeight:800,color:agent.color,flexShrink:0,marginBottom:2,alignSelf:"flex-start",marginTop:4 }}>{agent.initials}</div>}
             {m.role==="assistant" && (m.content.trimStart().startsWith("<!") || m.content.trimStart().startsWith("<html") || (m.content.trimStart().startsWith("<") && m.content.includes("</html>")))
-              ? <div style={{ maxWidth:"94%", borderRadius:"14px 14px 14px 3px", overflow:"hidden", border:`1px solid rgba(0,127,255,0.30)` }}>
+              ? <div style={{ flex:1, borderRadius:"14px 14px 14px 3px", overflow:"hidden", border:`1px solid rgba(0,127,255,0.30)`, background:"#fff" }}>
                   <iframe srcDoc={m.content} sandbox="allow-popups allow-popups-to-escape-sandbox"
-                    style={{ width:"100%", minHeight:"400px", border:"none", display:"block" }}
-                    onLoad={e => { try { const h=e.target.contentDocument.body.scrollHeight; e.target.style.height=Math.min(Math.max(h+24,300),1000)+"px"; } catch(err){} }} />
+                    style={{ width:"100%", minHeight:"500px", border:"none", display:"block" }}
+                    onLoad={e => {
+                      try {
+                        const doc = e.target.contentDocument;
+                        const h = doc.documentElement.scrollHeight || doc.body.scrollHeight;
+                        e.target.style.height = Math.min(Math.max(h + 30, 400), 900) + "px";
+                      } catch(err){}
+                    }} />
                 </div>
               : <div style={{ maxWidth:"75%",padding:"10px 14px",borderRadius:m.role==="user"?"14px 14px 3px 14px":"14px 14px 14px 3px",
                   background:m.role==="user"?agent.color:"rgba(0,127,255,0.20)",
