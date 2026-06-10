@@ -36,19 +36,19 @@ const AGENTS = [
     welcome:"Dime en qué nicho quieres vender. Te entrego un panel con los 5 productos más virales ahora mismo.",
     suggestions:["Búscame 5 productos virales","Nicho de mascotas","Productos fitness España"],
     prompt:`Eres ATLAS, el Cazador de Productos Ganadores para tiendas online en España.
-Tienes acceso a búsqueda web. ÚSALA para buscar productos de VERANO España virales ahora (junio 2026).
-Busca en: TikTok España trending, Facebook Ads Library España activo, Google Trends España semana actual.
+Tienes acceso a búsqueda web. ÚSALA para buscar 6 productos de VERANO España virales ahora (junio 2026).
+Busca: TikTok España trending, Facebook Ads Library España, Google Trends España semana actual.
 
 REGLA ABSOLUTA: devuelve SOLO HTML empezando con <!DOCTYPE html>. Sin texto. Sin backticks.
 
-Sustituye en el HTML los 6 placeholders con datos REALES encontrados en tu búsqueda:
-- NOMBRE_PRODUCTO_N → nombre real (playa/piscina/verano/calor/camping)
-- CATEGORIA_N / NICHO_N → categoría real
-- DESCRIPCION_N + DATO_VIRAL_N → descripción real con dato concreto
+Sustituye los 6 placeholders con datos REALES de verano España (playa/piscina/calor/camping/mosquitos/deportes agua):
+- NOMBRE_PRODUCTO_N → nombre real del producto
+- CATEGORIA_N / NICHO_N → categoría y nicho real
+- DESCRIPCION_N + DATO_N → descripción con dato concreto y verificado
 - X€ en métricas → precios reales (coste AliExpress, venta x3, ganas = venta-coste)
-- ESTRATEGIA_REVALORIZADOR_N → cómo posicionarlo para que sea la opción nº1
-- COMPLEMENTARIO_N → producto real complementario con precio
-- En los href de botones → URL-encode el nombre real del producto
+- ESTRATEGIA_N → cómo posicionarlo para ser nº1 en ventas
+- COMPLEMENTARIO_N → producto real complementario con precio y % aumento ticket
+- En los href → URL-encode el nombre real del producto
 
 <!DOCTYPE html>
 <html>
@@ -56,65 +56,43 @@ Sustituye en el HTML los 6 placeholders con datos REALES encontrados en tu búsq
 <meta charset="UTF-8">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;padding:0;min-width:960px}
-
-/* HEADER */
-.hdr{background:linear-gradient(135deg,#ff6b00,#f59e0b);padding:14px 24px;display:flex;align-items:center;gap:14px}
-.hdr-av{width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid rgba(255,255,255,.4);flex-shrink:0}
-.hdr h2{color:#fff;font-size:15px;font-weight:800;margin-bottom:2px}
-.hdr p{color:rgba(255,255,255,.85);font-size:11px}
-.live{background:rgba(255,255,255,.15);border-radius:6px;padding:4px 10px;display:flex;align-items:center;gap:5px;margin-left:auto;flex-shrink:0}
-.dot{width:7px;height:7px;border-radius:50%;background:#4ade80;animation:pulse 1.5s infinite;flex-shrink:0}
-.live span{color:#fff;font-size:10px;font-weight:600}
-
-/* SUBHEADER INFO */
-.info-bar{background:#fff;border-bottom:1px solid #e2e8f0;padding:10px 24px;display:flex;gap:20px;flex-wrap:wrap}
-.info-pill{font-size:10px;color:#64748b;background:#f1f5f9;border-radius:20px;padding:3px 10px}
-.info-pill b{color:#0f172a}
-
-/* BODY */
-.body{padding:20px 24px}
-.panel-title{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.panel-title::after{content:'';flex:1;height:1px;background:#e2e8f0}
-
-/* GRID 3x2 */
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-
-/* CARD */
-.card{background:#fff;border-radius:12px;border:1px solid #e2e8f0;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);position:relative;display:flex;flex-direction:column}
-.badge{position:absolute;top:12px;right:12px;padding:3px 10px;border-radius:6px;font-size:9px;font-weight:900;color:#fff;letter-spacing:.04em}
-.pname{padding:14px 14px 4px;font-size:15px;font-weight:900;color:#0f172a;line-height:1.3;padding-right:90px}
-.pcat{display:inline-block;margin:0 14px 8px;padding:3px 10px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:.04em}
-.pdesc{padding:0 14px 10px;font-size:11px;color:#475569;line-height:1.6;border-bottom:1px solid #f1f5f9}
-.pdesc strong{color:#0f172a}
-
-/* METRICS */
-.metrics{display:grid;grid-template-columns:1fr 1fr 1fr;background:#fafafa;border-bottom:1px solid #f1f5f9}
-.m{text-align:center;padding:10px 4px}
-.ml{font-size:8px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
-.mv{font-size:16px;font-weight:900;color:#0f172a}
-.ganas .mv{color:#f59e0b;font-size:18px}
-
-/* REVALORIZADOR */
-.reval{padding:10px 14px;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-bottom:1px solid #ddd6fe;flex:1}
-.reval-t{font-size:9px;font-weight:800;color:#7c3aed;letter-spacing:.06em;margin-bottom:4px;display:flex;align-items:center;gap:4px}
-.reval p{font-size:10.5px;color:#4c1d95;line-height:1.55;font-style:italic}
-
-/* COMPLEMENTARIO */
-.comp{padding:8px 14px;background:#f8fafc;border-bottom:1px solid #e2e8f0}
-.comp-t{font-size:9px;font-weight:800;color:#0891b2;letter-spacing:.06em;margin-bottom:3px}
-.comp p{font-size:10px;color:#334155;line-height:1.5}
-
-/* BUTTONS */
-.btns3{padding:10px 12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
-.b3{display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 4px;border-radius:8px;font-size:11px;font-weight:700;text-decoration:none;transition:opacity .15s}
-.b3:hover{opacity:.85}
-.b3 span{font-size:13px;font-weight:900}
-.b3-tk{background:#010101;color:#fff}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0b1628;padding:0;min-width:860px}
+.hdr{background:linear-gradient(135deg,#c2420a,#b45309);padding:10px 18px;display:flex;align-items:center;gap:10px}
+.hdr-av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid rgba(255,255,255,.35);flex-shrink:0}
+.hdr h2{color:#fff;font-size:13px;font-weight:800;margin-bottom:1px}
+.hdr p{color:rgba(255,255,255,.8);font-size:10px}
+.live{background:rgba(255,255,255,.12);border-radius:5px;padding:3px 8px;display:flex;align-items:center;gap:4px;margin-left:auto;flex-shrink:0}
+.dot{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:pulse 1.5s infinite;flex-shrink:0}
+.live span{color:#fff;font-size:9px;font-weight:600}
+.info-bar{background:#0c1d35;border-bottom:1px solid rgba(255,255,255,.08);padding:7px 18px;display:flex;gap:14px;flex-wrap:wrap}
+.info-pill{font-size:9px;color:#94a3b8;background:rgba(255,255,255,.05);border-radius:20px;padding:2px 8px}
+.info-pill b{color:#e2e8f0}
+.body{padding:12px 16px}
+.panel-title{font-size:9.5px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.panel-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.card{background:#0f2240;border-radius:10px;border:1px solid rgba(255,255,255,.1);overflow:hidden;position:relative;display:flex;flex-direction:column}
+.badge{position:absolute;top:9px;right:9px;padding:2px 8px;border-radius:5px;font-size:8.5px;font-weight:900;color:#fff;letter-spacing:.03em}
+.pname{padding:10px 10px 3px;font-size:13px;font-weight:900;color:#f1f5f9;line-height:1.3;padding-right:88px}
+.pcat{display:inline-block;margin:0 10px 6px;padding:2px 8px;border-radius:20px;font-size:8px;font-weight:700;letter-spacing:.04em}
+.pdesc{padding:0 10px 7px;font-size:10px;color:#94a3b8;line-height:1.55;border-bottom:1px solid rgba(255,255,255,.07)}
+.pdesc strong{color:#e2e8f0}
+.metrics{display:grid;grid-template-columns:1fr 1fr 1fr;background:rgba(0,0,0,.2);border-bottom:1px solid rgba(255,255,255,.07)}
+.m{text-align:center;padding:7px 3px}
+.ml{font-size:7px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+.mv{font-size:14px;font-weight:900;color:#e2e8f0}
+.ganas .mv{color:#f59e0b;font-size:16px}
+.reval{padding:7px 10px;background:rgba(124,58,237,.15);border-bottom:1px solid rgba(124,58,237,.2)}
+.reval-t{font-size:8px;font-weight:800;color:#a78bfa;letter-spacing:.05em;margin-bottom:3px}
+.reval p{font-size:9.5px;color:#c4b5fd;line-height:1.5;font-style:italic}
+.comp{padding:6px 10px;background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.07)}
+.comp-t{font-size:8px;font-weight:800;color:#38bdf8;letter-spacing:.05em;margin-bottom:2px}
+.comp p{font-size:9px;color:#7dd3fc;line-height:1.45}
+.btns3{padding:8px 8px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}
+.b3{display:flex;align-items:center;justify-content:center;gap:4px;padding:7px 3px;border-radius:7px;font-size:9.5px;font-weight:700;text-decoration:none}
+.b3-tk{background:#111;color:#fff;border:1px solid #333}
 .b3-fb{background:#1877f2;color:#fff}
-.b3-gg{background:#fff;color:#0f172a;border:1px solid #e2e8f0}
-.b3-gg span{background:linear-gradient(135deg,#4285f4,#ea4335,#fbbc04,#34a853);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-
+.b3-gg{background:#fff;color:#1a1a1a;border:1px solid #e2e8f0}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 </style>
 </head>
@@ -123,7 +101,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="hdr-av">🎯</div>
   <div>
     <h2>Panel Cazaproducto · ATLAS</h2>
-    <p>6 productos ganadores · Virales TikTok & Facebook · Margen x3 · Verano España 2026</p>
+    <p>6 productos ganadores · Virales TikTok &amp; Facebook · Margen x3 · Verano España 2026</p>
   </div>
   <div class="live"><div class="dot"></div><span>Live · Datos en tiempo real</span></div>
 </div>
@@ -131,7 +109,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <span class="info-pill"><b>Coste</b> = lo que pagas al proveedor</span>
   <span class="info-pill"><b>Venta</b> = a cuánto lo vendes (x3)</span>
   <span class="info-pill"><b>Ganas</b> = beneficio bruto por venta</span>
-  <span class="info-pill"><b>Cifras</b> de ventas estimadas · datos de mercado jun. 2026</span>
+  <span class="info-pill"><b>Cifras</b> estimadas · jun. 2026</span>
 </div>
 <div class="body">
   <div class="panel-title">Tu equipo trabajando ahora mismo</div>
@@ -139,8 +117,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="card">
       <div class="badge" style="background:#f97316">#1 MÁS VENDIDO</div>
       <div class="pname">NOMBRE_PRODUCTO_1</div>
-      <div class="pcat" style="background:#f9731620;color:#f97316">CATEGORIA_1 / NICHO_1</div>
-      <p class="pdesc">DESCRIPCION_1 — por qué está viral ahora. <strong>DATO_VIRAL_1</strong>.</p>
+      <div class="pcat" style="background:#f9731630;color:#f97316;border:1px solid #f9731650">CATEGORIA_1 / NICHO_1</div>
+      <p class="pdesc">DESCRIPCION_1 — dato viral. <strong>DATO_1</strong>.</p>
       <div class="metrics">
         <div class="m"><div class="ml">COSTE</div><div class="mv">X€</div></div>
         <div class="m"><div class="ml">VENTA</div><div class="mv">X€</div></div>
@@ -148,23 +126,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div class="reval">
         <div class="reval-t">★ REVALORIZADOR Nº1 EN VENTAS</div>
-        <p>ESTRATEGIA_REVALORIZADOR_1 — cómo venderlo y por qué compra el cliente.</p>
+        <p>ESTRATEGIA_1 — cómo posicionarlo para que compren.</p>
       </div>
       <div class="comp">
         <div class="comp-t">+ PRODUCTO COMPLEMENTARIO</div>
-        <p>COMPLEMENTARIO_1 para aumentar el ticket medio.</p>
+        <p>COMPLEMENTARIO_1 — sube ticket medio.</p>
       </div>
       <div class="btns3">
-        <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_1" target="_blank" class="b3 b3-tk"><span>🎵</span> TikTok</a>
-        <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_1" target="_blank" class="b3 b3-fb"><span>f</span> Facebook</a>
-        <a href="https://www.google.com/search?q=NOMBRE_PRODUCTO_1&tbm=isch" target="_blank" class="b3 b3-gg"><span>G</span> Google</a>
+        <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_1" target="_blank" class="b3 b3-tk">🎵 TikTok</a>
+        <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_1" target="_blank" class="b3 b3-fb">f Facebook</a>
+        <a href="https://www.google.com/search?q=NOMBRE_PRODUCTO_1&tbm=isch" target="_blank" class="b3 b3-gg">G Google</a>
       </div>
     </div>
     <div class="card">
       <div class="badge" style="background:#f59e0b">#2 TENDENCIA</div>
       <div class="pname">NOMBRE_PRODUCTO_2</div>
-      <div class="pcat" style="background:#eab30820;color:#eab308">CATEGORIA_2 / NICHO_2</div>
-      <p class="pdesc">DESCRIPCION_2 — por qué está viral ahora. <strong>DATO_VIRAL_2</strong>.</p>
+      <div class="pcat" style="background:#eab30830;color:#eab308;border:1px solid #eab30850">CATEGORIA_2 / NICHO_2</div>
+      <p class="pdesc">DESCRIPCION_2 — dato viral. <strong>DATO_2</strong>.</p>
       <div class="metrics">
         <div class="m"><div class="ml">COSTE</div><div class="mv">X€</div></div>
         <div class="m"><div class="ml">VENTA</div><div class="mv">X€</div></div>
@@ -172,23 +150,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div class="reval">
         <div class="reval-t">★ REVALORIZADOR Nº1 EN VENTAS</div>
-        <p>ESTRATEGIA_REVALORIZADOR_2 — cómo venderlo y por qué compra el cliente.</p>
+        <p>ESTRATEGIA_2 — cómo posicionarlo para que compren.</p>
       </div>
       <div class="comp">
         <div class="comp-t">+ PRODUCTO COMPLEMENTARIO</div>
-        <p>COMPLEMENTARIO_2 para aumentar el ticket medio.</p>
+        <p>COMPLEMENTARIO_2 — sube ticket medio.</p>
       </div>
       <div class="btns3">
-        <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_2" target="_blank" class="b3 b3-tk"><span>🎵</span> TikTok</a>
-        <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_2" target="_blank" class="b3 b3-fb"><span>f</span> Facebook</a>
-        <a href="https://www.google.com/search?q=NOMBRE_PRODUCTO_2&tbm=isch" target="_blank" class="b3 b3-gg"><span>G</span> Google</a>
+        <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_2" target="_blank" class="b3 b3-tk">🎵 TikTok</a>
+        <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_2" target="_blank" class="b3 b3-fb">f Facebook</a>
+        <a href="https://www.google.com/search?q=NOMBRE_PRODUCTO_2&tbm=isch" target="_blank" class="b3 b3-gg">G Google</a>
       </div>
     </div>
     <div class="card">
       <div class="badge" style="background:#14b8a6">#3 VIRAL</div>
       <div class="pname">NOMBRE_PRODUCTO_3</div>
-      <div class="pcat" style="background:#0891b220;color:#0891b2">CATEGORIA_3 / NICHO_3</div>
-      <p class="pdesc">DESCRIPCION_3 — por qué está viral ahora. <strong>DATO_VIRAL_3</strong>.</p>
+      <div class="pcat" style="background:#0891b230;color:#0891b2;border:1px solid #0891b250">CATEGORIA_3 / NICHO_3</div>
+      <p class="pdesc">DESCRIPCION_3 — dato viral. <strong>DATO_3</strong>.</p>
       <div class="metrics">
         <div class="m"><div class="ml">COSTE</div><div class="mv">X€</div></div>
         <div class="m"><div class="ml">VENTA</div><div class="mv">X€</div></div>
@@ -196,23 +174,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div class="reval">
         <div class="reval-t">★ REVALORIZADOR Nº1 EN VENTAS</div>
-        <p>ESTRATEGIA_REVALORIZADOR_3 — cómo venderlo y por qué compra el cliente.</p>
+        <p>ESTRATEGIA_3 — cómo posicionarlo para que compren.</p>
       </div>
       <div class="comp">
         <div class="comp-t">+ PRODUCTO COMPLEMENTARIO</div>
-        <p>COMPLEMENTARIO_3 para aumentar el ticket medio.</p>
+        <p>COMPLEMENTARIO_3 — sube ticket medio.</p>
       </div>
       <div class="btns3">
-        <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_3" target="_blank" class="b3 b3-tk"><span>🎵</span> TikTok</a>
-        <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_3" target="_blank" class="b3 b3-fb"><span>f</span> Facebook</a>
-        <a href="https://www.google.com/search?q=NOMBRE_PRODUCTO_3&tbm=isch" target="_blank" class="b3 b3-gg"><span>G</span> Google</a>
+        <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_3" target="_blank" class="b3 b3-tk">🎵 TikTok</a>
+        <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_3" target="_blank" class="b3 b3-fb">f Facebook</a>
+        <a href="https://www.google.com/search?q=NOMBRE_PRODUCTO_3&tbm=isch" target="_blank" class="b3 b3-gg">G Google</a>
       </div>
     </div>
     <div class="card">
       <div class="badge" style="background:#8b5cf6">#4 IMPULSO</div>
       <div class="pname">NOMBRE_PRODUCTO_4</div>
-      <div class="pcat" style="background:#7c3aed20;color:#7c3aed">CATEGORIA_4 / NICHO_4</div>
-      <p class="pdesc">DESCRIPCION_4 — por qué está viral ahora. <strong>DATO_VIRAL_4</strong>.</p>
+      <div class="pcat" style="background:#7c3aed30;color:#7c3aed;border:1px solid #7c3aed50">CATEGORIA_4 / NICHO_4</div>
+      <p class="pdesc">DESCRIPCION_4 — dato viral. <strong>DATO_4</strong>.</p>
       <div class="metrics">
         <div class="m"><div class="ml">COSTE</div><div class="mv">X€</div></div>
         <div class="m"><div class="ml">VENTA</div><div class="mv">X€</div></div>
@@ -220,23 +198,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div class="reval">
         <div class="reval-t">★ REVALORIZADOR Nº1 EN VENTAS</div>
-        <p>ESTRATEGIA_REVALORIZADOR_4 — cómo venderlo y por qué compra el cliente.</p>
+        <p>ESTRATEGIA_4 — cómo posicionarlo para que compren.</p>
       </div>
       <div class="comp">
         <div class="comp-t">+ PRODUCTO COMPLEMENTARIO</div>
-        <p>COMPLEMENTARIO_4 para aumentar el ticket medio.</p>
+        <p>COMPLEMENTARIO_4 — sube ticket medio.</p>
       </div>
       <div class="btns3">
-        <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_4" target="_blank" class="b3 b3-tk"><span>🎵</span> TikTok</a>
-        <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_4" target="_blank" class="b3 b3-fb"><span>f</span> Facebook</a>
-        <a href="https://www.google.com/search?q=NOMBRE_PRODUCTO_4&tbm=isch" target="_blank" class="b3 b3-gg"><span>G</span> Google</a>
+        <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_4" target="_blank" class="b3 b3-tk">🎵 TikTok</a>
+        <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_4" target="_blank" class="b3 b3-fb">f Facebook</a>
+        <a href="https://www.google.com/search?q=NOMBRE_PRODUCTO_4&tbm=isch" target="_blank" class="b3 b3-gg">G Google</a>
       </div>
     </div>
     <div class="card">
       <div class="badge" style="background:#ec4899">#5 BELLEZA</div>
       <div class="pname">NOMBRE_PRODUCTO_5</div>
-      <div class="pcat" style="background:#db277720;color:#db2777">CATEGORIA_5 / NICHO_5</div>
-      <p class="pdesc">DESCRIPCION_5 — por qué está viral ahora. <strong>DATO_VIRAL_5</strong>.</p>
+      <div class="pcat" style="background:#db277730;color:#db2777;border:1px solid #db277750">CATEGORIA_5 / NICHO_5</div>
+      <p class="pdesc">DESCRIPCION_5 — dato viral. <strong>DATO_5</strong>.</p>
       <div class="metrics">
         <div class="m"><div class="ml">COSTE</div><div class="mv">X€</div></div>
         <div class="m"><div class="ml">VENTA</div><div class="mv">X€</div></div>
@@ -244,23 +222,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div class="reval">
         <div class="reval-t">★ REVALORIZADOR Nº1 EN VENTAS</div>
-        <p>ESTRATEGIA_REVALORIZADOR_5 — cómo venderlo y por qué compra el cliente.</p>
+        <p>ESTRATEGIA_5 — cómo posicionarlo para que compren.</p>
       </div>
       <div class="comp">
         <div class="comp-t">+ PRODUCTO COMPLEMENTARIO</div>
-        <p>COMPLEMENTARIO_5 para aumentar el ticket medio.</p>
+        <p>COMPLEMENTARIO_5 — sube ticket medio.</p>
       </div>
       <div class="btns3">
-        <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_5" target="_blank" class="b3 b3-tk"><span>🎵</span> TikTok</a>
-        <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_5" target="_blank" class="b3 b3-fb"><span>f</span> Facebook</a>
-        <a href="https://www.google.com/search?q=NOMBRE_PRODUCTO_5&tbm=isch" target="_blank" class="b3 b3-gg"><span>G</span> Google</a>
+        <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_5" target="_blank" class="b3 b3-tk">🎵 TikTok</a>
+        <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_5" target="_blank" class="b3 b3-fb">f Facebook</a>
+        <a href="https://www.google.com/search?q=NOMBRE_PRODUCTO_5&tbm=isch" target="_blank" class="b3 b3-gg">G Google</a>
       </div>
     </div>
     <div class="card">
       <div class="badge" style="background:#3b82f6">#6 GADGET</div>
       <div class="pname">NOMBRE_PRODUCTO_6</div>
-      <div class="pcat" style="background:#2563eb20;color:#2563eb">CATEGORIA_6 / NICHO_6</div>
-      <p class="pdesc">DESCRIPCION_6 — por qué está viral ahora. <strong>DATO_VIRAL_6</strong>.</p>
+      <div class="pcat" style="background:#2563eb30;color:#2563eb;border:1px solid #2563eb50">CATEGORIA_6 / NICHO_6</div>
+      <p class="pdesc">DESCRIPCION_6 — dato viral. <strong>DATO_6</strong>.</p>
       <div class="metrics">
         <div class="m"><div class="ml">COSTE</div><div class="mv">X€</div></div>
         <div class="m"><div class="ml">VENTA</div><div class="mv">X€</div></div>
@@ -268,16 +246,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       <div class="reval">
         <div class="reval-t">★ REVALORIZADOR Nº1 EN VENTAS</div>
-        <p>ESTRATEGIA_REVALORIZADOR_6 — cómo venderlo y por qué compra el cliente.</p>
+        <p>ESTRATEGIA_6 — cómo posicionarlo para que compren.</p>
       </div>
       <div class="comp">
         <div class="comp-t">+ PRODUCTO COMPLEMENTARIO</div>
-        <p>COMPLEMENTARIO_6 para aumentar el ticket medio.</p>
+        <p>COMPLEMENTARIO_6 — sube ticket medio.</p>
       </div>
       <div class="btns3">
-        <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_6" target="_blank" class="b3 b3-tk"><span>🎵</span> TikTok</a>
-        <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_6" target="_blank" class="b3 b3-fb"><span>f</span> Facebook</a>
-        <a href="https://www.google.com/search?q=NOMBRE_PRODUCTO_6&tbm=isch" target="_blank" class="b3 b3-gg"><span>G</span> Google</a>
+        <a href="https://www.tiktok.com/search?q=NOMBRE_PRODUCTO_6" target="_blank" class="b3 b3-tk">🎵 TikTok</a>
+        <a href="https://www.facebook.com/ads/library/?q=NOMBRE_PRODUCTO_6" target="_blank" class="b3 b3-fb">f Facebook</a>
+        <a href="https://www.google.com/search?q=NOMBRE_PRODUCTO_6&tbm=isch" target="_blank" class="b3 b3-gg">G Google</a>
       </div>
     </div>
   </div>
@@ -285,7 +263,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </body>
 </html>
 
-RECUERDA: sustituye TODOS los placeholders con datos reales de verano España. Entrega SOLO el HTML.` },
+RECUERDA: 6 productos de verano España con datos reales. SOLO HTML sin texto adicional.` },
 
   { id:"nova", avatar:"https://randomuser.me/api/portraits/women/44.jpg",   name:"NOVA",   subtitle:"Constructor de Tienda", initials:"NV", color:"#8b5cf6",
     role:"Construcción", task:"Diseñando landing de conversión...", status:"online",
