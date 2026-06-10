@@ -35,28 +35,109 @@ const AGENTS = [
     role:"Producto", task:"Calculando potencial €/mes...", status:"online",
     welcome:"Dime en qué nicho quieres vender. Te entrego un panel con los 5 productos más virales ahora mismo.",
     suggestions:["Búscame 5 productos virales","Nicho de mascotas","Productos fitness España"],
-    prompt:`Eres el Caza Productos, mi trabajador IA que busca productos ganadores para mi tienda online.
+    prompt:`Eres ATLAS, el Cazador de Productos Ganadores para tiendas online en España.
 
-REGLA: Hazlo ya, rápido, no esperes. Ejecutas directamente sin excusas. Usas tu conocimiento de tendencias para dar recomendaciones creíbles y accionables.
+Tienes acceso a búsqueda web en tiempo real. SIEMPRE la usas antes de responder.
 
-Búscame 5 productos virales en TikTok y Facebook que estén vendiendo más de 10.000 euros al mes.
+PROCESO OBLIGATORIO (en este orden):
+1. Busca en Google Trends España los productos más buscados esta temporada
+2. Busca en TikTok qué productos están virales ahora mismo en España
+3. Busca en Facebook Ads Library qué productos se están anunciando masivamente
+4. Con esa información real, genera el panel HTML
 
-Hazme un panel bonito y fácil de leer donde para cada producto vea:
-- Cuánto cuesta comprarlo
-- A cuánto lo tengo que vender
-- Cuánto gano por cada venta
-- Un revalorizador: producto complementario de regalo muy económico que lo convierta en la opción nº1
+REGLA CRÍTICA: Devuelves SOLO HTML completo. Nunca texto plano. Nunca markdown.
 
-En la parte de arriba del panel pon tu nombre y lo que puedes hacer por mí. Nada de fechas.
+Genera este HTML con 5 productos reales encontrados en tu búsqueda:
 
-Añade estos botones que abran links reales:
-- Ver vídeos en TikTok de estos productos
-- Ver vídeos en Facebook de estos productos
-- Ver fotos en Google
-- Ver tendencia en Google Trends España (últimos 5 años)
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body{font-family:-apple-system,sans-serif;background:#f8fafc;margin:0;padding:16px}
+  .header{background:linear-gradient(135deg,#ff6b35,#f59e0b);border-radius:12px;padding:20px;text-align:center;margin-bottom:20px;color:#fff}
+  .header h2{margin:0 0 6px;font-size:20px}
+  .header p{margin:0;font-size:12px;opacity:.9}
+  .badges{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+  .badge{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+  .card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);border:1px solid #e2e8f0}
+  .card-top{padding:12px 14px 8px}
+  .card-badges{display:flex;gap:6px;margin-bottom:8px;align-items:center}
+  .num{background:#f59e0b;color:#fff;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:800}
+  .trend{background:#dcfce7;color:#15803d;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700}
+  .viral{background:#fee2e2;color:#dc2626;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700}
+  .rising{background:#dbeafe;color:#1d4ed8;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700}
+  .card-name{font-size:13px;font-weight:700;color:#0f172a;margin:0 0 2px}
+  .card-cat{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em}
+  .metrics{display:grid;grid-template-columns:1fr 1fr 1fr;background:#fafafa;border-top:1px solid #f1f5f9;border-bottom:1px solid #f1f5f9}
+  .metric{text-align:center;padding:8px 4px}
+  .metric-label{font-size:7.5px;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
+  .metric-val{font-size:13px;font-weight:800;color:#0f172a}
+  .metric-val.highlight{color:#f59e0b;font-size:15px}
+  .sales{padding:5px 14px;font-size:10px;color:#64748b;background:#fafafa}
+  .bundle{padding:8px 14px;background:#fffbeb;font-size:10px;color:#92400e;border-top:1px solid #fef3c7}
+  .bundle b{display:block;margin-bottom:1px;font-size:11px}
+  .btns{padding:10px 12px;display:flex;flex-direction:column;gap:5px}
+  .btn{padding:7px;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer;text-decoration:none;display:block;text-align:center;color:#fff}
+  .btn-green{background:#22c55e}
+  .btn-blue{background:#3b82f6}
+  .btn-red{background:#ef4444}
+  .btn-gray{background:#64748b}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+  .source{padding:4px 14px 8px;font-size:9px;color:#94a3b8;font-style:italic}
+</style>
+</head>
+<body>
+<div class="header">
+  <h2>🔥 5 productos con demanda verificada ahora mismo</h2>
+  <p>Datos en tiempo real · Google Trends + TikTok + Facebook Ads · España</p>
+  <div class="badges">
+    <span class="badge">✓ Datos reales</span>
+    <span class="badge">✓ Temporada actual</span>
+    <span class="badge">✓ Margen mínimo 3x</span>
+  </div>
+</div>
+<div class="grid">
+  [AQUÍ VAN LAS 5 TARJETAS — una por producto encontrado en la búsqueda]
 
-Asegúrate de que todos los botones funcionan.
-No busques proveedores. Evita emojis en nombres de productos.` },
+  Ejemplo de estructura de cada tarjeta:
+  <div class="card">
+    <div class="card-top">
+      <div class="card-badges">
+        <span class="num">#1</span>
+        <span class="trend">📈 Trending</span>
+      </div>
+      <div class="card-name">NOMBRE REAL DEL PRODUCTO</div>
+      <div class="card-cat">CATEGORÍA · NICHO</div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="metric-label">PRECIO VENTA</div><div class="metric-val">XX€</div></div>
+      <div class="metric"><div class="metric-label">COSTE</div><div class="metric-val">XX€</div></div>
+      <div class="metric"><div class="metric-label">BENEFICIO</div><div class="metric-val highlight">XX€</div></div>
+    </div>
+    <div class="sales">Para 10.000€/mes · ~XX ventas/día</div>
+    <div class="bundle"><b>💎 Bundle:</b> Producto complementario (X€) · +X% ticket medio</div>
+    <div class="source">Fuente: Google Trends ES · pico de búsquedas esta semana</div>
+    <div class="btns">
+      <div class="row2">
+        <a href="https://www.facebook.com/ads/library/?q=NOMBRE+URL+ENCODED" target="_blank" class="btn btn-blue">📘 Facebook Ads</a>
+        <a href="https://www.tiktok.com/search?q=NOMBRE+URL+ENCODED" target="_blank" class="btn btn-red">🎵 TikTok</a>
+      </div>
+      <a href="https://trends.google.es/trends/explore?q=NOMBRE+URL+ENCODED&geo=ES" target="_blank" class="btn btn-gray">📊 Google Trends ES</a>
+      <a href="https://www.google.com/search?q=NOMBRE+URL+ENCODED&tbm=isch" target="_blank" class="btn btn-gray">🖼️ Imágenes</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+
+IMPORTANTE:
+- Rellena los 5 productos con datos REALES de tu búsqueda web
+- URL-encode los nombres en los href (espacios = +, ñ = %C3%B1, etc.)
+- El badge puede ser trend/viral/rising según lo que encuentres
+- En "source" pon de dónde viene el dato (Google Trends, TikTok, etc.)
+- Entrega el HTML completo listo para renderizar, sin texto adicional` },
 
   { id:"nova", avatar:"https://randomuser.me/api/portraits/women/44.jpg",   name:"NOVA",   subtitle:"Constructor de Tienda", initials:"NV", color:"#8b5cf6",
     role:"Construcción", task:"Diseñando landing de conversión...", status:"online",
@@ -604,10 +685,17 @@ function ChatView({ agent, messages, input, setInput, loading, onSend, onKey, en
         {messages.map((m,i)=>(
           <div key={i} style={{ display:"flex",justifyContent:m.role==="user"?"flex-end":"flex-start",gap:8,alignItems:"flex-end",animation:"fadeIn 0.2s ease" }}>
             {m.role==="assistant" && <div style={{ width:26,height:26,borderRadius:6,background:agent.color+"18",display:"flex",alignItems:"center",justifyContent:"center",fontSize:7.5,fontWeight:800,color:agent.color,flexShrink:0,marginBottom:2 }}>{agent.initials}</div>}
-            <div style={{ maxWidth:"75%",padding:"10px 14px",borderRadius:m.role==="user"?"14px 14px 3px 14px":"14px 14px 14px 3px",
-              background:m.role==="user"?agent.color:"rgba(0,127,255,0.20)",
-              border:m.role==="assistant"?`1px solid rgba(0,127,255,0.30)`:"none",
-              color:m.role==="user"?"#fff":"#cbd5e1",fontSize:13,lineHeight:1.7,whiteSpace:"pre-wrap",wordBreak:"break-word" }}>{m.content}</div>
+            {m.role==="assistant" && (m.content.trimStart().startsWith("<!") || m.content.trimStart().startsWith("<html") || (m.content.trimStart().startsWith("<") && m.content.includes("</html>")))
+              ? <div style={{ maxWidth:"94%", borderRadius:"14px 14px 14px 3px", overflow:"hidden", border:`1px solid rgba(0,127,255,0.30)` }}>
+                  <iframe srcDoc={m.content} sandbox="allow-popups allow-popups-to-escape-sandbox"
+                    style={{ width:"100%", minHeight:"400px", border:"none", display:"block" }}
+                    onLoad={e => { try { const h=e.target.contentDocument.body.scrollHeight; e.target.style.height=Math.min(Math.max(h+24,300),1000)+"px"; } catch(err){} }} />
+                </div>
+              : <div style={{ maxWidth:"75%",padding:"10px 14px",borderRadius:m.role==="user"?"14px 14px 3px 14px":"14px 14px 14px 3px",
+                  background:m.role==="user"?agent.color:"rgba(0,127,255,0.20)",
+                  border:m.role==="assistant"?`1px solid rgba(0,127,255,0.30)`:"none",
+                  color:m.role==="user"?"#fff":"#cbd5e1",fontSize:13,lineHeight:1.7,whiteSpace:"pre-wrap",wordBreak:"break-word" }}>{m.content}</div>
+            }
           </div>
         ))}
         {loading && (
@@ -826,7 +914,7 @@ function App() {
     setInput(""); setLoading(true);
     try {
       const res=await fetch("/api",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:1500,system:agent.prompt,messages:updated})});
+        body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:4000,system:agent.prompt,messages:updated,agentId:agent.id})});
       const data=await res.json();
       const aiMsg={role:"assistant",content:data.response||"Error al generar respuesta."};
       setConvs(p=>({...p,[activeId]:[...updated,aiMsg]}));
