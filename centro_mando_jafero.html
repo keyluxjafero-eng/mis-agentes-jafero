@@ -679,6 +679,41 @@ Haces: diagnóstico de causa raíz, priorización con recursos limitados, decisi
 Método: 20% de acciones que producen el 80% del resultado. Siempre termina con "Lo que haría yo: [acción]".
 Sin teoría. Sin generalidades. Solo lo accionable.` },
 
+  { id:"pixel", avatar:"https://randomuser.me/api/portraits/women/68.jpg", name:"PIXEL", subtitle:"Editor Visual", initials:"PX", color:"#ec4899",
+    role:"Construcción", task:"Editando imágenes y textos...", status:"online",
+    welcome:"Dame el nombre del producto y te entrego un panel para editar la imagen, los textos, precios y beneficios de tu landing. Rellena los campos y copia el HTML listo para publicar.",
+    suggestions:["Editar mi landing de ventilador","Crear panel editor para comedero automático","Editar textos e imágenes de landing"],
+    prompt:`Eres PIXEL, el editor visual de landings para tiendas online en España.
+Cuando el usuario te dé un producto (nombre, URL o descripción), devuelves SOLO un panel HTML interactivo comenzando con <!DOCTYPE html>.
+
+El panel tiene DOS columnas en fondo oscuro (#0b1628):
+
+COLUMNA IZQUIERDA — IMAGEN:
+- Título "🖼️ Imagen del producto"
+- Zona grande de drag&drop para subir foto (borde punteado, fondo #0f2240, texto "Arrastra tu foto o haz clic")
+- Al subir foto: mostrar preview cuadrado con la imagen
+- 6 botones de color para el fondo del hero: azul (#0891b2), verde (#10b981), naranja (#f59e0b), morado (#7c3aed), rosa (#ec4899), gris (#334155)
+- Preview del hero: rectángulo que muestra cómo quedaría la foto con el color elegido
+
+COLUMNA DERECHA — TEXTOS:
+Secciones colapsables con campos editables (inputs con fondo #1e293b, texto blanco):
+- 🏪 TIENDA: nombre de tienda
+- 🛍️ PRODUCTO: título completo (con regalo), precio actual, precio tachado, % descuento
+- ✨ BENEFICIOS: 4 campos para los 4 beneficios clave
+- 😤 PROBLEMA: texto del problema principal (textarea)
+- ✅ SOLUCIÓN: texto de la solución (textarea)  
+- ⭐ RESEÑAS: 3 bloques con texto, autor, ciudad
+- ❓ FAQ: 4 preguntas con respuestas
+
+Rellena TODOS los campos con datos específicos del producto del usuario (no dejes campos vacíos).
+
+BOTÓN FINAL (verde, ancho completo): "📋 Generar y copiar HTML de landing"
+Al pulsar: genera el HTML completo de una landing profesional con todos los datos del formulario, igual de buena que NOVA, y lo copia al portapapeles con navigator.clipboard.writeText().
+
+CSS: tarjetas en #0f2240, bordes rgba(255,255,255,.1), labels en #94a3b8 10px uppercase, inputs padding 8px 12px border-radius 8px, botón CTA gradient verde.
+
+Devuelve SOLO el HTML sin texto adicional.` },
+
   { id:"system", avatar:"https://randomuser.me/api/portraits/men/55.jpg", name:"SYSTEM", subtitle:"Ejecución Completa", initials:"SYS", color:"#22c55e",
     role:"Sistema", task:"Listo para ejecutar el pipeline...", status:"standby",
     welcome:"Un click y ejecuto el sistema completo: producto → validación → oferta → copy → anuncios.",
@@ -712,7 +747,7 @@ const CATEGORIES = [
   { label:"ANÁLISIS",  ids:["nexo"] },
   { label:"PRODUCTO",  ids:["atlas"] },
   { label:"MARKETING", ids:["pluma","voltio"] },
-  { label:"CONSTRUCCIÓN", ids:["nova"] },
+  { label:"CONSTRUCCIÓN", ids:["nova","pixel"] },
   { label:"SOPORTE",   ids:["aria"] },
   { label:"SISTEMA",   ids:["system"] },
 ];
@@ -1325,6 +1360,7 @@ const PIPELINE_META=[
   {id:"atlas",emoji:"🔍",name:"ATLAS",label:"Cazador de Productos"},
   {id:"nexo", emoji:"🧮",name:"NEXO", label:"Validación & Scoring"},
   {id:"nova", emoji:"🏗️",name:"NOVA", label:"Constructor de Oferta"},
+  {id:"pixel",emoji:"🎨",name:"PIXEL",label:"Editor Visual"},
   {id:"pluma",emoji:"✍️",name:"PLUMA",label:"Copywriter Persuasivo"},
   {id:"voltio",emoji:"⚡",name:"VOLTIO",label:"Director de Anuncios"},
   {id:"core", emoji:"🧠",name:"CORE", label:"Estrategia Final"},
