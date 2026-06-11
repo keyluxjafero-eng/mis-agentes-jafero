@@ -39,7 +39,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(200); self._cors(); self.end_headers()
 
     def do_GET(self):
-        # Servir landing page publicada
+        # Servir landing page publicada (limpia, sin edit bar)
         if self.path.startswith("/p/"):
             slug = self.path[3:].split("?")[0].rstrip("/")
             if slug not in PAGES:
@@ -54,6 +54,23 @@ class Handler(BaseHTTPRequestHandler):
                 self._cors(); self.end_headers(); self.wfile.write(b)
                 return
             self.send_error(404, "Página no encontrada"); return
+
+        # Servir landing page en modo edición (CON edit bar)
+        if self.path.startswith("/edit/"):
+            slug = self.path[6:].split("?")[0].rstrip("/")
+            edit_file = os.path.join(PAGES_DIR, f"{slug}_edit.html")
+            if os.path.exists(edit_file):
+                content = open(edit_file, encoding="utf-8").read()
+            elif slug in PAGES:
+                content = PAGES[slug]  # fallback a versión publicada
+            else:
+                self.send_error(404, "Página no encontrada"); return
+            b = content.encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(b)))
+            self._cors(); self.end_headers(); self.wfile.write(b)
+            return
 
         # Servir el frontend
         if self.path in ["/", "/index.html"]:
@@ -84,8 +101,13 @@ class Handler(BaseHTTPRequestHandler):
                 PAGES[slug] = pg_html
                 with open(os.path.join(PAGES_DIR, f"{slug}.html"), "w", encoding="utf-8") as f:
                     f.write(pg_html)
+                # Guardar también versión editable (con edit bar) si se envía
+                edit_html = data.get("editHtml", "")
+                if edit_html:
+                    with open(os.path.join(PAGES_DIR, f"{slug}_edit.html"), "w", encoding="utf-8") as f:
+                        f.write(edit_html)
                 print(f"  Página guardada: /p/{slug}")
-                self._json({"ok": True, "slug": slug, "path": f"/p/{slug}"})
+                self._json({"ok": True, "slug": slug, "path": f"/p/{slug}", "editPath": f"/edit/{slug}"})
             except Exception as e:
                 self._json({"ok": False, "error": str(e)})
             return
