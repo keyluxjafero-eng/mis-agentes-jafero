@@ -1041,91 +1041,114 @@ function CommandCenter({ agents, onSelect, onRunSystem }) {
 
 /* ═══════════════════════ HTML MESSAGE BLOCK ═══════════════════════ */
 function HtmlMessageBlock({ initialContent, agent, msgIdx }) {
-  const [html,     setHtml]     = useState(initialContent);
+  const iframeRef  = useRef(null);
   const [editMode, setEditMode] = useState(false);
-  const [iframeKey,setIframeKey]= useState(0);
-  const iframeRef = useRef(null);
+  const [html,     setHtml]     = useState(() => injectEditScript(initialContent));
 
-  // Activar/desactivar edición directa sobre la landing
-  const toggleEdit = () => {
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-    try {
-      const doc = iframe.contentDocument || iframe.contentWindow.document;
-      if (!editMode) {
-        // ACTIVAR: designMode hace toda la página editable directamente
-        doc.designMode = "on";
-        // Resaltar visualmente que está en modo edición
-        doc.body.style.outline = "3px solid #f59e0b";
-        doc.body.style.outlineOffset = "-3px";
-        setEditMode(true);
-      } else {
-        // GUARDAR: capturar HTML con cambios y desactivar
-        doc.designMode = "off";
-        doc.body.style.outline = "";
-        doc.body.style.outlineOffset = "";
-        const updated = "<!DOCTYPE html>" + doc.documentElement.outerHTML;
-        setHtml(updated);
+  // Inyectar script de edición en el HTML antes de mostrarlo
+  function injectEditScript(src) {
+    const script = `<script id="__je">
+window.addEventListener('message',function(e){
+  if(!e.data||!e.data.__jf) return;
+  if(e.data.a==='on'){
+    document.designMode='on';
+    document.body.style.outline='3px solid #f59e0b';
+    document.body.style.outlineOffset='-3px';
+    document.body.style.cursor='text';
+  }
+  if(e.data.a==='off'){
+    document.designMode='off';
+    document.body.style.outline='';
+    document.body.style.outlineOffset='';
+    document.body.style.cursor='';
+    var sc=document.getElementById('__je');
+    if(sc) sc.remove();
+    window.parent.postMessage({__jf:true,a:'html',v:'<!DOCTYPE html>'+document.documentElement.outerHTML},'*');
+  }
+});
+<\/script>`;
+    if (src.includes('</body>')) return src.replace('</body>', script + '</body>');
+    return src + script;
+  }
+
+  // Escuchar respuesta del iframe con el HTML actualizado
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.data && e.data.__jf && e.data.a === 'html') {
+        setHtml(injectEditScript(e.data.v));
         setEditMode(false);
       }
-    } catch(e) {
-      console.error("Edit error:", e);
-    }
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, []);
+
+  const activateEdit = () => {
+    const fw = iframeRef.current && iframeRef.current.contentWindow;
+    if (!fw) return;
+    fw.postMessage({ __jf: true, a: 'on' }, '*');
+    setEditMode(true);
+  };
+
+  const saveEdit = () => {
+    const fw = iframeRef.current && iframeRef.current.contentWindow;
+    if (!fw) return;
+    fw.postMessage({ __jf: true, a: 'off' }, '*');
+    // editMode se pone false cuando llega el mensaje 'html'
   };
 
   return (
     <div style={{ flex:1, display:"flex", flexDirection:"column" }}>
-      {/* Indicador de modo edición */}
+
+      {/* Banner modo edición */}
       {editMode && (
-        <div style={{ background:"#f59e0b", padding:"7px 14px",
-          borderRadius:"14px 14px 0 0", display:"flex", alignItems:"center",
-          justifyContent:"space-between" }}>
+        <div style={{ background:"#f59e0b", padding:"8px 16px", borderRadius:"14px 14px 0 0",
+          display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <span style={{ fontSize:12, fontWeight:700, color:"#fff" }}>
-            ✏️ Modo edición activo — haz clic sobre cualquier texto para editarlo
+            ✏️ Modo edición — haz clic sobre cualquier texto y escribe
           </span>
-          <button onClick={toggleEdit}
-            style={{ padding:"5px 14px", borderRadius:7, border:"none",
-              background:"#fff", color:"#f59e0b", fontSize:12,
-              fontWeight:800, cursor:"pointer" }}>
+          <button onClick={saveEdit}
+            style={{ padding:"6px 16px", borderRadius:7, border:"none",
+              background:"#fff", color:"#f59e0b", fontSize:12, fontWeight:800, cursor:"pointer" }}>
             ✅ Guardar cambios
           </button>
         </div>
       )}
 
-      {/* PREVIEW IFRAME */}
-      <div style={{ borderRadius: editMode ? "0" : "14px 14px 0 0",
-        overflow:"hidden", border:"1px solid rgba(0,127,255,0.30)",
-        borderTop: editMode ? "2px solid #f59e0b" : "1px solid rgba(0,127,255,0.30)",
+      {/* IFRAME */}
+      <div style={{ overflow:"hidden",
+        border: editMode ? "2px solid #f59e0b" : "1px solid rgba(0,127,255,0.30)",
+        borderTop: editMode ? "none" : "1px solid rgba(0,127,255,0.30)",
+        borderRadius: editMode ? "0 0 0 0" : "14px 14px 0 0",
         background:"#fff" }}>
-        <iframe key={iframeKey} ref={iframeRef} srcDoc={html}
+        <iframe ref={iframeRef} srcDoc={html}
           sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts allow-forms allow-same-origin"
           style={{ width:"100%", minHeight:"600px", border:"none", display:"block" }}
           onLoad={e => {
             try {
               const doc = e.target.contentDocument;
-              const h = Math.max(
-                doc.documentElement.scrollHeight||0,
-                doc.body ? doc.body.scrollHeight : 0,
-                doc.documentElement.offsetHeight||0
-              );
-              if(h > 100) e.target.style.height = (h + 60) + "px";
+              const h = Math.max(doc.documentElement.scrollHeight||0, doc.body?.scrollHeight||0);
+              if (h > 100) e.target.style.height = (h + 60) + "px";
             } catch(err){}
           }} />
       </div>
 
-      {/* BARRA INFERIOR */}
+      {/* BARRA ACCIONES */}
       <div style={{ background:"#0c1a30", border:"1px solid rgba(0,127,255,0.3)",
         borderTop:"none", borderRadius:"0 0 14px 14px",
         padding:"10px 14px", display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
-        <button onClick={toggleEdit}
-          style={{ padding:"7px 16px", borderRadius:8, border:"none",
-            background: editMode ? "#22c55e" : "#f59e0b",
-            color:"#fff", fontSize:12, fontWeight:700, cursor:"pointer" }}>
-          {editMode ? "✅ Guardar cambios" : "✏️ Editar landing"}
-        </button>
-        <span style={{ fontSize:10, color:"#475569" }}>
-          {editMode ? "Clic en cualquier texto para editarlo" : ""}
-        </span>
+        {!editMode
+          ? <button onClick={activateEdit}
+              style={{ padding:"7px 16px", borderRadius:8, border:"none",
+                background:"#f59e0b", color:"#fff", fontSize:12, fontWeight:700, cursor:"pointer" }}>
+              ✏️ Editar landing
+            </button>
+          : <button onClick={saveEdit}
+              style={{ padding:"7px 16px", borderRadius:8, border:"none",
+                background:"#22c55e", color:"#fff", fontSize:12, fontWeight:700, cursor:"pointer" }}>
+              ✅ Guardar cambios
+            </button>
+        }
         <div style={{ marginLeft:"auto" }}>
           <PublishButton html={html} agentId={agent.id} />
         </div>
