@@ -1041,83 +1041,51 @@ function CommandCenter({ agents, onSelect, onRunSystem }) {
 
 /* ═══════════════════════ HTML MESSAGE BLOCK ═══════════════════════ */
 function HtmlMessageBlock({ initialContent, agent, msgIdx }) {
-  const iframeRef   = useRef(null);
-  const activateRef = useRef(false);
-  const [html,      setHtml]      = useState(initialContent);
-  const [editMode,  setEditMode]  = useState(false);
-  const [saved,     setSaved]     = useState(false);
-  const [iframeKey, setIframeKey] = useState(0);
+  const iframeRef  = useRef(null);
+  const [html,     setHtml]    = useState(initialContent);
+  const [editMode, setEditMode] = useState(false);
+  const [saved,    setSaved]   = useState(false);
+  const [loaded,   setLoaded]  = useState(false);
+  const [editErr,  setEditErr] = useState("");
 
-  // Añadir script al HTML (evita duplicados)
-  function withScript(src) {
-    if (src.includes('"__jfedit"')) return src;
-    const open  = '\u003cscript id="__jfedit"\u003e';
-    const close = '\u003c/script\u003e';
-    const body  =
-      'window.addEventListener("message",function(e){' +
-        'if(!e.data||e.data.t!=="jf")return;' +
-        'if(e.data.c==="on"){' +
-          'document.designMode="on";' +
-          'document.body.style.outline="4px solid #f59e0b";' +
-          'document.body.style.outlineOffset="-4px";' +
-        '}' +
-        'if(e.data.c==="off"){' +
-          'document.designMode="off";' +
-          'document.body.style.outline="";' +
-          'var s=document.getElementById("__jfedit");if(s)s.remove();' +
-          'window.parent.postMessage({t:"jf",c:"saved",' +
-            'v:"<!DOCTYPE html>"+document.documentElement.outerHTML},"*");' +
-        '}' +
-      '});';
-    const tag = open + body + close;
-    return src.includes('</body>') ? src.replace('</body>', tag+'</body>') : src+tag;
-  }
-
-  // Escuchar HTML guardado desde iframe
-  useEffect(() => {
-    const fn = (e) => {
-      if (e.data && e.data.t === 'jf' && e.data.c === 'saved') {
-        setHtml(e.data.v);
-        setEditMode(false);
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2500);
-      }
-    };
-    window.addEventListener('message', fn);
-    return () => window.removeEventListener('message', fn);
-  }, []);
-
-  // Al cargar el iframe, activar edición si está pendiente
   const onLoad = (e) => {
+    setLoaded(true);
+    setEditErr("");
     try {
       const doc = e.target.contentDocument;
       const h = Math.max(doc.documentElement.scrollHeight||0, doc.body?.scrollHeight||0);
-      if (h > 100) e.target.style.height = (h + 60) + 'px';
+      if (h > 100) e.target.style.height = (h + 60) + "px";
     } catch(_){}
-    if (activateRef.current) {
-      activateRef.current = false;
-      const fw = e.target.contentWindow;
-      // Reintentar hasta que el script esté listo
-      let tries = 0;
-      const attempt = () => {
-        try { fw.postMessage({t:'jf', c:'on'}, '*'); }
-        catch(_){}
-        if (++tries < 5) setTimeout(attempt, 150);
-      };
-      setTimeout(attempt, 100);
-    }
   };
 
   const startEdit = () => {
-    setHtml(h => withScript(h));  // inyectar script
-    activateRef.current = true;
-    setIframeKey(k => k + 1);     // forzar recarga del iframe
-    setEditMode(true);
+    const iframe = iframeRef.current;
+    if (!iframe) { setEditErr("iframe no disponible"); return; }
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!doc || !doc.body) { setEditErr("Espera a que cargue la landing"); return; }
+    try {
+      doc.designMode = "on";
+      doc.body.style.outline = "3px solid #f59e0b";
+      doc.body.style.outlineOffset = "-4px";
+      iframe.focus();
+      setEditMode(true);
+      setEditErr("");
+    } catch(e) { setEditErr("Error: " + e.message); }
   };
 
   const stopEdit = () => {
-    try { iframeRef.current.contentWindow.postMessage({t:'jf', c:'off'}, '*'); }
-    catch(_){}
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (!doc) return;
+    try {
+      doc.designMode = "off";
+      doc.body.style.outline = "";
+      setHtml("<!DOCTYPE html>" + doc.documentElement.outerHTML);
+      setEditMode(false);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } catch(e) { setEditErr("Error al guardar: " + e.message); }
   };
 
   return (
@@ -1127,7 +1095,7 @@ function HtmlMessageBlock({ initialContent, agent, msgIdx }) {
           borderRadius:"14px 14px 0 0",
           display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <span style={{ fontSize:12, fontWeight:700, color:"#fff" }}>
-            ✏️ Haz clic sobre cualquier texto de la landing y edítalo directamente
+            ✏️ Haz clic en cualquier texto de la landing y escríbelo directamente
           </span>
           <button onClick={stopEdit}
             style={{ padding:"6px 16px", borderRadius:7, border:"none",
@@ -1136,16 +1104,67 @@ function HtmlMessageBlock({ initialContent, agent, msgIdx }) {
           </button>
         </div>
       )}
-
       <div style={{ overflow:"hidden", background:"#fff",
         border: editMode ? "2px solid #f59e0b" : "1px solid rgba(0,127,255,.3)",
-        borderTop: editMode ? "none" : undefined,
+        borderTop: editMode ? "none" : "1px solid rgba(0,127,255,.3)",
         borderRadius: editMode ? "0" : "14px 14px 0 0" }}>
-        <iframe key={iframeKey} ref={iframeRef} srcDoc={html}
+        <iframe ref={iframeRef} srcDoc={html}
           style={{ width:"100%", minHeight:"600px", border:"none", display:"block" }}
           onLoad={onLoad} />
       </div>
+      <div style={{ background:"#0c1a30", border:"1px solid rgba(0,127,255,.3)",
+        borderTop:"none", borderRadius:"0 0 14px 14px",
+        padding:"10px 14px", display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
+        {!editMode
+          ? <button onClick={startEdit} disabled={!loaded}
+              style={{ padding:"7px 16px", borderRadius:8, border:"none",
+                background: loaded ? "#f59e0b" : "#64748b",
+                color:"#fff", fontSize:12, fontWeight:700,
+                cursor: loaded ? "pointer" : "not-allowed" }}>
+              {loaded ? "✏️ Editar landing" : "⏳ Cargando..."}
+            </button>
+          : <button onClick={stopEdit}
+              style={{ padding:"7px 16px", borderRadius:8, border:"none",
+                background:"#22c55e", color:"#fff", fontSize:12, fontWeight:700, cursor:"pointer" }}>
+              ✅ Guardar cambios
+            </button>
+        }
+        {editErr && <span style={{ fontSize:11, color:"#ef4444" }}>⚠️ {editErr}</span>}
+        {saved  && <span style={{ fontSize:11, color:"#22c55e", fontWeight:700 }}>✓ Cambios guardados</span>}
+        <div style={{ marginLeft:"auto" }}>
+          <PublishButton html={html} agentId={agent.id} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
+
+
+  return (
+    <div style={{ flex:1, display:"flex", flexDirection:"column" }}>
+      {editMode && (
+        <div style={{ background:"#f59e0b", padding:"8px 16px",
+          borderRadius:"14px 14px 0 0",
+          display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <span style={{ fontSize:12, fontWeight:700, color:"#fff" }}>
+            ✏️ Haz clic en cualquier texto y escríbelo directamente
+          </span>
+          <button onClick={stopEdit}
+            style={{ padding:"6px 16px", borderRadius:7, border:"none",
+              background:"#fff", color:"#f59e0b", fontSize:12, fontWeight:800, cursor:"pointer" }}>
+            ✅ Guardar cambios
+          </button>
+        </div>
+      )}
+      <div style={{ overflow:"hidden", background:"#fff",
+        border: editMode ? "2px solid #f59e0b" : "1px solid rgba(0,127,255,.3)",
+        borderTop: editMode ? "none" : "1px solid rgba(0,127,255,.3)",
+        borderRadius: editMode ? "0" : "14px 14px 0 0" }}>
+        <iframe ref={iframeRef} srcDoc={html}
+          style={{ width:"100%", minHeight:"600px", border:"none", display:"block" }}
+          onLoad={onLoad} />
+      </div>
       <div style={{ background:"#0c1a30", border:"1px solid rgba(0,127,255,.3)",
         borderTop:"none", borderRadius:"0 0 14px 14px",
         padding:"10px 14px", display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
@@ -1170,7 +1189,6 @@ function HtmlMessageBlock({ initialContent, agent, msgIdx }) {
   );
 }
 
-/* ═══════════════════════ PUBLISH BUTTON ═══════════════════════ */
 function PublishButton({ html, agentId }) {
   const [state,  setState]  = useState("idle");
   const [pubUrl, setPubUrl] = useState("");
