@@ -1039,7 +1039,105 @@ function CommandCenter({ agents, onSelect, onRunSystem }) {
   );
 }
 
-/* ═══════════════════════ CHAT VIEW ═══════════════════════ */
+/* ═══════════════════════ PUBLISH BAR ═══════════════════════ */
+function PublishBar({ content, msgIdx, agentId }) {
+  const [state,    setState]  = useState("idle"); // idle | publishing | done | error
+  const [pubUrl,   setPubUrl] = useState("");
+  const [copied,   setCopied] = useState(false);
+
+  const publish = async () => {
+    setState("publishing");
+    try {
+      // Extract slug from HTML comment or title
+      let slug = "";
+      const slugMatch = content.match(/<!--\s*slug:\s*\/?([^\s>-][^\s>]*)\s*-->/i);
+      if (slugMatch) slug = slugMatch[1];
+      else {
+        const titleMatch = content.match(/<title>([^<]{1,80})<\/title>/i);
+        if (titleMatch) {
+          slug = titleMatch[1].toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+            .replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-").slice(0,50);
+        }
+      }
+      if (!slug) slug = agentId + "-" + Date.now();
+
+      const res  = await fetch("/save-page", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ slug, html: content })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        const fullUrl = window.location.origin + data.path;
+        setPubUrl(fullUrl);
+        setState("done");
+      } else {
+        setState("error");
+      }
+    } catch(e) {
+      setState("error");
+    }
+  };
+
+  const copyUrl = () => {
+    navigator.clipboard.writeText(pubUrl).then(()=>{
+      setCopied(true);
+      setTimeout(()=>setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div style={{ background:"#0c1a30", border:"1px solid rgba(0,127,255,0.3)", borderTop:"none",
+      borderRadius:"0 0 14px 14px", padding:"10px 14px", display:"flex", alignItems:"center", gap:10 }}>
+      {state==="idle" && (
+        <button onClick={publish}
+          style={{ padding:"8px 18px", borderRadius:8, border:"none",
+            background:"linear-gradient(135deg,#3b82f6,#2563eb)",
+            color:"#fff", fontSize:12, fontWeight:700, cursor:"pointer",
+            display:"flex", alignItems:"center", gap:6 }}>
+          🌐 Publicar y obtener URL para Facebook Ads
+        </button>
+      )}
+      {state==="publishing" && (
+        <div style={{ display:"flex", alignItems:"center", gap:8, color:"#94a3b8", fontSize:12 }}>
+          <div style={{ width:14,height:14,border:"2px solid #3b82f6",borderTopColor:"transparent",
+            borderRadius:"50%",animation:"spin 0.8s linear infinite" }}/>
+          Publicando landing page...
+        </div>
+      )}
+      {state==="done" && (
+        <div style={{ display:"flex", alignItems:"center", gap:10, flex:1, flexWrap:"wrap" }}>
+          <span style={{ fontSize:11, color:"#22c55e", fontWeight:700 }}>✅ Publicada:</span>
+          <a href={pubUrl} target="_blank"
+            style={{ fontSize:12, color:"#60a5fa", fontWeight:600,
+              overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", maxWidth:400 }}>
+            {pubUrl}
+          </a>
+          <button onClick={copyUrl}
+            style={{ padding:"6px 14px", borderRadius:7, border:"none",
+              background: copied ? "#22c55e" : "#334155",
+              color:"#fff", fontSize:11, fontWeight:700, cursor:"pointer", flexShrink:0 }}>
+            {copied ? "✓ Copiada" : "📋 Copiar URL"}
+          </button>
+          <span style={{ fontSize:10, color:"#475569" }}>← Pega esta URL en Facebook Ads</span>
+        </div>
+      )}
+      {state==="error" && (
+        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+          <span style={{ fontSize:11, color:"#ef4444" }}>❌ Error al publicar</span>
+          <button onClick={()=>setState("idle")}
+            style={{ padding:"5px 12px", borderRadius:7, border:"none",
+              background:"#ef4444", color:"#fff", fontSize:11, cursor:"pointer" }}>
+            Reintentar
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 function ChatView({ agent, messages, input, setInput, loading, onSend, onKey, endRef, onBack }) {
   const taRef = useRef(null);
   useEffect(() => {
@@ -1088,26 +1186,28 @@ function ChatView({ agent, messages, input, setInput, loading, onSend, onKey, en
             display:"flex",
             justifyContent: m.role==="user" ? "flex-end" : "flex-start",
             gap:8, alignItems:"flex-end", animation:"fadeIn 0.2s ease",
-            // HTML responses get full width treatment
             width: (m.role==="assistant" && (m.content.trimStart().startsWith("<!") || m.content.includes("</html>"))) ? "100%" : "auto"
           }}>
             {m.role==="assistant" && <div style={{ width:26,height:26,borderRadius:6,background:agent.color+"18",display:"flex",alignItems:"center",justifyContent:"center",fontSize:7.5,fontWeight:800,color:agent.color,flexShrink:0,marginBottom:2,alignSelf:"flex-start",marginTop:4 }}>{agent.initials}</div>}
             {m.role==="assistant" && (m.content.trimStart().startsWith("<!") || m.content.trimStart().startsWith("<html") || (m.content.trimStart().startsWith("<") && m.content.includes("</html>")))
-              ? <div style={{ flex:1, borderRadius:"14px 14px 14px 3px", overflow:"hidden", border:`1px solid rgba(0,127,255,0.30)`, background:"#fff" }}>
-                  <iframe srcDoc={m.content}
-                    sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts"
-                    style={{ width:"100%", minHeight:"600px", border:"none", display:"block" }}
-                    onLoad={e => {
-                      try {
-                        const doc = e.target.contentDocument;
-                        const h = Math.max(
-                          doc.documentElement.scrollHeight||0,
-                          doc.body ? doc.body.scrollHeight : 0,
-                          doc.documentElement.offsetHeight||0
-                        );
-                        if(h > 100) e.target.style.height = (h + 60) + "px";
-                      } catch(err){}
-                    }} />
+              ? <div style={{ flex:1, display:"flex", flexDirection:"column", gap:0 }}>
+                  <div style={{ borderRadius:"14px 14px 0 0", overflow:"hidden", border:`1px solid rgba(0,127,255,0.30)`, background:"#fff" }}>
+                    <iframe srcDoc={m.content}
+                      sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts"
+                      style={{ width:"100%", minHeight:"600px", border:"none", display:"block" }}
+                      onLoad={e => {
+                        try {
+                          const doc = e.target.contentDocument;
+                          const h = Math.max(
+                            doc.documentElement.scrollHeight||0,
+                            doc.body ? doc.body.scrollHeight : 0,
+                            doc.documentElement.offsetHeight||0
+                          );
+                          if(h > 100) e.target.style.height = (h + 60) + "px";
+                        } catch(err){}
+                      }} />
+                  </div>
+                  <PublishBar content={m.content} msgIdx={i} agentId={agent.id} />
                 </div>
               : <div style={{ maxWidth:"75%",padding:"10px 14px",borderRadius:m.role==="user"?"14px 14px 3px 14px":"14px 14px 14px 3px",
                   background:m.role==="user"?agent.color:"rgba(0,127,255,0.20)",
