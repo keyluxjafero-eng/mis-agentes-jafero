@@ -1216,7 +1216,7 @@ function ChatView({ agent, messages, input, setInput, loading, onSend, onKey, en
               ? <div style={{ flex:1, display:"flex", flexDirection:"column", gap:0 }}>
                   <div style={{ borderRadius:"14px 14px 0 0", overflow:"hidden", border:`1px solid rgba(0,127,255,0.30)`, background:"#fff" }}>
                     <iframe srcDoc={m.content}
-                      sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts"
+                      sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts allow-forms allow-same-origin"
                       style={{ width:"100%", minHeight:"600px", border:"none", display:"block" }}
                       onLoad={e => {
                         try {
