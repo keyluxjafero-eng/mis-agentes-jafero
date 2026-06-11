@@ -1053,7 +1053,7 @@ function HtmlMessageBlock({ initialContent, agent, msgIdx }) {
     setEditErr("");
     try {
       const doc = e.target.contentDocument;
-      const h = Math.max(doc.documentElement.scrollHeight||0, doc.body?.scrollHeight||0);
+      const h = Math.max(doc.documentElement.scrollHeight||0, doc.body ? doc.body.scrollHeight : 0||0);
       if (h > 100) e.target.style.height = (h + 60) + "px";
     } catch(_){}
   };
@@ -1061,7 +1061,7 @@ function HtmlMessageBlock({ initialContent, agent, msgIdx }) {
   const startEdit = () => {
     const iframe = iframeRef.current;
     if (!iframe) { setEditErr("iframe no disponible"); return; }
-    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    const doc = iframe.contentDocument || iframe.contentWindow ? iframe.contentWindow.document : null;
     if (!doc || !doc.body) { setEditErr("Espera a que cargue la landing"); return; }
     try {
       doc.designMode = "on";
@@ -1076,7 +1076,7 @@ function HtmlMessageBlock({ initialContent, agent, msgIdx }) {
   const stopEdit = () => {
     const iframe = iframeRef.current;
     if (!iframe) return;
-    const doc = iframe.contentDocument || iframe.contentWindow?.document;
+    const doc = iframe.contentDocument || iframe.contentWindow ? iframe.contentWindow.document : null;
     if (!doc) return;
     try {
       doc.designMode = "off";
@@ -1178,7 +1178,7 @@ function PublishButton({ html, agentId }) {
         setEditUrl(window.location.origin + (data.editPath || "/edit/"+slug));
         setState("done");
       } else setState("error");
-    } catch { setState("error"); }
+    } catch(e) { setState("error"); }
   };
 
   const copy = () => {
@@ -1344,7 +1344,7 @@ function SystemView({ onBack }) {
   const [tipo,    setTipo]    = useState("Cualquier tipo");
   const [objetivo,setObjetivo]= useState("");
   const endRef = useRef(null);
-  useEffect(()=>{endRef.current?.scrollIntoView({behavior:"smooth"});},[sections,status]);
+  useEffect(()=>{endRef.current && endRef.current.scrollIntoView({behavior:"smooth"});},[sections,status]);
 
   const parseSections = text => {
     const lines=text.split("\n"); const sects=[]; let cur=null;
@@ -1500,7 +1500,7 @@ function App() {
   const [loading, setLoading] =useState(false);
   const endRef=useRef(null);
   const msgs=activeId?(convs[activeId]||[]):[];
-  useEffect(()=>{endRef.current?.scrollIntoView({behavior:"smooth"});},[msgs,loading]);
+  useEffect(()=>{endRef.current && endRef.current.scrollIntoView({behavior:"smooth"});},[msgs,loading]);
 
   const send=async()=>{
     if(!input.trim()||loading||!activeId) return;
@@ -1515,7 +1515,7 @@ function App() {
       const data=await res.json();
       const aiMsg={role:"assistant",content:data.response||"Error al generar respuesta."};
       setConvs(p=>({...p,[activeId]:[...updated,aiMsg]}));
-    } catch {
+    } catch(e) {
       setConvs(p=>({...p,[activeId]:[...updated,{role:"assistant",content:"Error de conexión."}]}));
     }
     setLoading(false);
