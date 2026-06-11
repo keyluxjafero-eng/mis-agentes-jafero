@@ -675,33 +675,31 @@ Conclusión directa: rentable o no. 3 acciones concretas por impacto. Sin jerga 
     suggestions:["Diagnostica mi negocio","¿Qué hago primero?","Toma esta decisión conmigo"],
     prompt:`Eres CORE, el Director y Orquestador de Mis Agentes Jafero.
 
-MODO PRODUCTO (cuando recibes imagen + texto):
-Tienes web search activado. Cuando el usuario te envíe una foto de producto con instrucciones:
+MODO PRODUCTO — cuando recibes una imagen + instrucciones de venta:
+Tienes web search activado. Usa la imagen enviada por el usuario como foto del producto.
 
-PASO 1 — IDENTIFICA el producto: nombre, categoría, uso, beneficios visibles en la imagen
-PASO 2 — BUSCA con web search: precio de coste en AliExpress, precio ideal de venta en España (x3-x4), tendencia en TikTok/Google
-PASO 3 — PREGUNTA (solo si no lo ha dicho): ¿Es para Zarviko (mascotas/hogar) o AERION FIT (fitness/ropa)?
-PASO 4 — GENERA directamente el HTML completo de la landing page:
+PASO 1 — Identifica el producto desde la imagen
+PASO 2 — Busca con web search: precio AliExpress, precio venta España (x3), tendencia TikTok/Google/Instagram ahora
+PASO 3 — Si no lo indica el usuario, pregunta: ¿Zarviko (mascotas/hogar) o AERION FIT (fitness)?
+PASO 4 — Genera la landing con el MISMO CSS BASE que NOVA (blanca, limpia, profesional):
 
-La landing debe ser BLANCA, LIMPIA y PROFESIONAL:
-- La imagen del usuario como hero principal
-- Thumbnails con imágenes limpias encontradas en la búsqueda web
-- Copy de alta conversión (título impactante + regalo GRATIS, precio con descuento 40-50%)
-- Sección problema/solución clara y directa
-- 3 beneficios concretos con datos reales
-- 3 reseñas creíbles con nombres y ciudades españolas
-- Selector de 3 packs (Básico / Premium★ / Kit Completo)
-- Botón "Comprar ahora" enlazado al checkout de Shopify:
-  · Zarviko: https://zarviko.com/cart/[variant_id]:1
-  · AERION FIT: https://twmi1f-ge.myshopify.com/cart/[variant_id]:1
-- Formulario de pedido
-- FAQ con preguntas específicas del producto
-- Barra de edición y publicación (edit bar) integrada
+REGLAS DE DISEÑO OBLIGATORIAS:
+- Fondo blanco (#ffffff) — NO verde, NO oscuro
+- Tipografía: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto
+- Hero 2 columnas: izquierda = imagen del producto, derecha = título + precio + packs + CTA
+- La imagen del usuario va en el hero como src de un <img> real (usa base64 o URL)
+- NUNCA uses logos o emojis como imagen principal — usa la foto real del producto
+- Badges y acentos: naranja #f59e0b para destacados, verde #10b981 para CTAs
+- Pack selector elegante con radio buttons y badge "MÁS ELEGIDO"
+- Secciones: problema/solución, 3 beneficios, reseñas, formulario pedido, FAQ
+- Todo muy limpio, mucho espacio en blanco, tipografía legible
 
-REGLA: devuelve SOLO el HTML empezando con <!DOCTYPE html>. Sin texto antes ni después.
+REGLA ABSOLUTA: Devuelve SOLO el HTML empezando con <!DOCTYPE html>. Sin backticks. Sin texto antes ni después.
 
-MODO ESTRATEGIA (cuando no hay imagen):
-Actúas como director estratégico de ecommerce. Ayudas con nichos, productos ganadores, estrategia de Facebook Ads, análisis de competencia. Directo, accionable, sin teoría. Siempre terminas con "Lo que haría yo: [acción concreta]".` },
+La landing debe ser IDÉNTICA en calidad y estilo a NOVA — blanca, profesional, lista para vender.
+
+MODO ESTRATEGIA — cuando no hay imagen:
+Actúas como director estratégico de ecommerce. Nichos, productos ganadores, estrategia Facebook Ads, análisis competencia. Directo y accionable. Siempre terminas con "Lo que haría yo: [acción concreta]".` },
 
   { id:"pixel", avatar:"https://randomuser.me/api/portraits/women/68.jpg", name:"PIXEL", subtitle:"Editor Visual", initials:"PX", color:"#ec4899",
     role:"Construcción", task:"Editando imágenes y textos...", status:"online",
@@ -1665,56 +1663,135 @@ function App() {
   const msgs = activeId ? (convs[activeId] || []) : [];
   useEffect(() => { if (endRef.current) endRef.current.scrollIntoView({behavior:"smooth"}); }, [msgs, loading]);
 
+  // ── Pipeline CORE: ATLAS → PLUMA → NOVA ────────────────────
+  const runCorePipeline = async (imgArr, textPrompt) => {
+    const addMsg = (content) => {
+      setConvs(p => { const c=p.core||[]; return {...p, core:[...c,{role:"assistant",content}]}; });
+    };
+    const updateLast = (content) => {
+      setConvs(p => { const c=[...(p.core||[])]; if(c.length)c[c.length-1]={role:"assistant",content}; return {...p,core:c}; });
+    };
+    const callAPI = async (system, uc, agentId, maxTok) => {
+      const m2 = [{role:"user",content:uc}];
+      const res = await fetch("/api",{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:maxTok||4000,system,messages:m2,agentId})});
+      const d = await res.json();
+      return d.response||"";
+    };
+
+    const lower = textPrompt.toLowerCase();
+    const isZ = lower.includes("zarviko")||lower.includes("mascota")||lower.includes("perro")||lower.includes("gato")||lower.includes("animal");
+    const storeName  = isZ ? "Zarviko Mascotas" : "AERION FIT";
+    const shopifyUrl = isZ ? "https://zarviko.com/cart/46302866669622:1" : "https://twmi1f-ge.myshopify.com/cart/";
+
+    // PASO 1: ATLAS
+    addMsg("🔍 **PASO 1/3 — ATLAS** investigando producto, precio y tendencias...");
+    const ac = imgArr.length>0 ? [
+      ...imgArr.map(img=>({type:"image",source:{type:"base64",media_type:img.type,data:img.data}})),
+      {type:"text",text:"Analiza este producto. Devuelve SOLO JSON sin texto: {\"nombre\":\"...\",\"categoria\":\"...\",\"precio_coste\":\"X€\",\"precio_venta\":\"X€\",\"precio_tachado\":\"X€\",\"descuento\":\"X%\",\"regalo\":\"accesorio complementario\",\"valor_regalo\":\"X€\",\"viral_en\":\"plataformas\",\"problema\":\"problema real\",\"solucion\":\"solución\"}"}
+    ] : textPrompt;
+    let atlasRaw = await callAPI("Analista productos ecommerce España. Devuelve SOLO JSON válido. Precio venta = coste x3-x4. Regalo = accesorio lógico complementario.", ac, "atlas", 1000);
+    let P = {};
+    try { P=JSON.parse(atlasRaw.replace(/```json|```/g,"").trim()); } catch(e) { P={nombre:"Producto",precio_venta:"19,99€",precio_tachado:"34,99€",descuento:"43%",regalo:"Accesorio GRATIS",valor_regalo:"9,99€",viral_en:"TikTok",problema:"El problema principal",solucion:"La solución"}; }
+    updateLast("🔍 **PASO 1/3 — ATLAS** ✅  Producto: **"+(P.nombre||"Producto")+"** · "+(P.precio_venta||"19,99€")+" · Viral en "+(P.viral_en||"TikTok/Instagram"));
+
+    // PASO 2: PLUMA
+    addMsg("✍️ **PASO 2/3 — PLUMA** escribiendo el copy de conversión...");
+    let plumaRaw = await callAPI(
+      "Copywriter ecommerce España. Devuelve SOLO JSON válido: {"titulo":"TÍTULO EN MAYÚSCULAS","hook":"gancho","problemas":["p1","p2","p3","p4"],"solucion":"2 frases","beneficios":[{"emoji":"🔥","titulo":"t","desc":"desc con dato"},{"emoji":"💧","titulo":"t","desc":"desc"},{"emoji":"🛡️","titulo":"t","desc":"desc"}],"resenas":[{"texto":"reseña detallada creíble","autor":"Nombre A.","ciudad":"Ciudad","dias":5},{"texto":"reseña 2","autor":"Nombre B.","ciudad":"Ciudad","dias":8},{"texto":"reseña 3","autor":"Nombre C.","ciudad":"Ciudad","dias":3}],"faq":[{"q":"pregunta","a":"respuesta"},{"q":"pregunta2","a":"respuesta2"}],"urgencia":"texto urgencia corto"}",
+      "Datos producto: "+JSON.stringify(P)+"\nTienda: "+storeName, "pluma", 2000
+    );
+    let C = {};
+    try { C=JSON.parse(plumaRaw.replace(/```json|```/g,"").trim()); } catch(e) { C={titulo:"PRODUCTO IMPRESCINDIBLE",hook:"El que todos necesitan",problemas:["Problema 1","Problema 2","Problema 3","Problema 4"],solucion:"La solución definitiva.",beneficios:[{emoji:"🔥",titulo:"Beneficio 1",desc:"Descripción concreta"},{emoji:"💧",titulo:"Beneficio 2",desc:"Descripción"},{emoji:"🛡️",titulo:"Beneficio 3",desc:"Descripción"}],resenas:[{texto:"Excelente",autor:"María G.",ciudad:"Madrid",dias:5},{texto:"Muy recomendable",autor:"Carlos R.",ciudad:"Barcelona",dias:8},{texto:"Lo mejor",autor:"Laura M.",ciudad:"Valencia",dias:3}],faq:[{q:"¿Cuánto tarda el envío?",a:"24-72h en toda España."},{q:"¿Puedo devolver?",a:"Sí, 30 días."}],urgencia:"Oferta limitada"}; }
+    updateLast("✍️ **PASO 2/3 — PLUMA** ✅  Copy listo: \""+C.titulo+"\"");
+
+    // PASO 3: NOVA
+    addMsg("🏗️ **PASO 3/3 — NOVA** construyendo la landing profesional...");
+    const imgUri = imgArr.length>0 ? "data:"+imgArr[0].type+";base64,"+imgArr[0].data : "";
+    const novaAgent = AGENTS.find(a=>a.id==="nova");
+    const novaMsg = imgArr.length>0 ? [
+      ...imgArr.map(img=>({type:"image",source:{type:"base64",media_type:img.type,data:img.data}})),
+      {type:"text",text:`Genera la landing usando estos datos exactos.
+
+TIENDA: ${storeName}
+NOMBRE: ${P.nombre||"Producto"}
+PRECIO: ${P.precio_venta||"19,99€"} · TACHADO: ${P.precio_tachado||"34,99€"} · DESCUENTO: ${P.descuento||"43%"}
+REGALO: ${P.regalo||"Accesorio GRATIS"} (valor ${P.valor_regalo||"9,99€"})
+CHECKOUT URL: ${shopifyUrl}
+
+TÍTULO: ${C.titulo||"PRODUCTO IMPRESCINDIBLE"}
+HOOK: ${C.hook||""}
+PROBLEMAS: ${JSON.stringify(C.problemas||[])}
+SOLUCIÓN: ${C.solucion||""}
+BENEFICIOS: ${JSON.stringify(C.beneficios||[])}
+RESEÑAS: ${JSON.stringify(C.resenas||[])}
+FAQ: ${JSON.stringify(C.faq||[])}
+URGENCIA: ${C.urgencia||""}
+
+USA ESTA IMAGEN EN EL HERO PRINCIPAL:
+<img src="${imgUri}" style="width:100%;height:100%;object-fit:cover;border-radius:14px" alt="${P.nombre||"producto"}">
+
+El botón CTA debe ser: <a href="${shopifyUrl}" ...>Comprar Ahora — Solo quedan 12 unidades</a>
+
+Devuelve SOLO HTML comenzando con <!DOCTYPE html>.`}
+    ] : `Genera landing para ${P.nombre}. Tienda: ${storeName}. URL checkout: ${shopifyUrl}. Datos: ${JSON.stringify(P)}. Copy: ${JSON.stringify(C)}.`;
+
+    const landingHtml = await callAPI(novaAgent.prompt, novaMsg, "nova", 8000);
+    updateLast(landingHtml.includes("<!DOCTYPE") ? landingHtml : "⚠️ No se pudo generar la landing. Inténtalo de nuevo.");
+  };
+
   const send = async () => {
     const hasText = input.trim().length > 0;
     const hasImgs = pendingImgs.length > 0;
     if ((!hasText && !hasImgs) || loading || !activeId) return;
     const agent = AGENTS.find(a => a.id === activeId);
 
-    // Build message content (string or array with images)
     let msgContent;
     if (hasImgs) {
       msgContent = [
-        ...pendingImgs.map(img => ({
-          type: "image",
-          source: { type: "base64", media_type: img.type, data: img.data }
-        })),
-        { type: "text", text: hasText ? input.trim() : "Analiza este producto y genera la landing page completa para venderlo." }
+        ...pendingImgs.map(img => ({type:"image",source:{type:"base64",media_type:img.type,data:img.data}})),
+        {type:"text",text:hasText?input.trim():"Analiza este producto y genera la landing page completa."}
       ];
     } else {
       msgContent = input.trim();
     }
 
-    const userMsg = { role: "user", content: msgContent };
+    const savedImgs = [...pendingImgs];
+    const savedText = input.trim();
+    const userMsg = {role:"user",content:msgContent};
     const updated = [...msgs, userMsg];
-    setConvs(p => ({...p, [activeId]: updated}));
+    setConvs(p => ({...p,[activeId]:updated}));
     setInput("");
     setPendingImgs([]);
     setLoading(true);
+
     try {
-      const res = await fetch("/api", {method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({model:"claude-haiku-4-5-20251001", max_tokens:8000, system:agent.prompt, messages:updated, agentId:agent.id})});
-      const data = await res.json();
-      const aiMsg = { role:"assistant", content: data.response || "Error al generar respuesta." };
-      setConvs(p => ({...p, [activeId]: [...updated, aiMsg]}));
+      if (activeId === "core" && hasImgs) {
+        await runCorePipeline(savedImgs, savedText||"Quiero vender este producto");
+      } else {
+        const res = await fetch("/api",{method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:8000,system:agent.prompt,messages:updated,agentId:agent.id})});
+        const data = await res.json();
+        setConvs(p => ({...p,[activeId]:[...updated,{role:"assistant",content:data.response||"Error."}]}));
+      }
     } catch(e) {
-      setConvs(p => ({...p, [activeId]: [...updated, {role:"assistant", content:"Error de conexión."}]}));
+      setConvs(p => ({...p,[activeId]:[...updated,{role:"assistant",content:"Error de conexión."}]}));
     }
     setLoading(false);
   };
 
-  const handleKey = e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } };
-  const agent = activeId ? AGENTS.find(a => a.id === activeId) : null;
+  const handleKey = e => { if (e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();} };
+  const agent = activeId ? AGENTS.find(a=>a.id===activeId) : null;
 
   return (
     <div style={{ display:"flex",width:"100%",height:"100vh",overflow:"hidden" }}>
-      <Sidebar agents={AGENTS} activeId={activeId} onSelect={id => { setPendingImgs([]); setActiveId(id); }} onHome={() => setActiveId(null)}/>
+      <Sidebar agents={AGENTS} activeId={activeId} onSelect={id=>{setPendingImgs([]);setActiveId(id);}} onHome={()=>setActiveId(null)}/>
       <div style={{ flex:1,display:"flex",flexDirection:"column",minWidth:0,height:"100%" }}>
-        {activeId === "system"
-          ? <SystemView onBack={() => setActiveId(null)}/>
+        {activeId==="system"
+          ? <SystemView onBack={()=>setActiveId(null)}/>
           : agent
-            ? <ChatView agent={agent} messages={msgs} input={input} setInput={setInput} loading={loading} onSend={send} onKey={handleKey} endRef={endRef} onBack={() => setActiveId(null)} pendingImgs={pendingImgs} setPendingImgs={setPendingImgs}/>
-            : <CommandCenter agents={AGENTS} onSelect={setActiveId} onRunSystem={() => setActiveId("system")}/>
+            ? <ChatView agent={agent} messages={msgs} input={input} setInput={setInput} loading={loading} onSend={send} onKey={handleKey} endRef={endRef} onBack={()=>setActiveId(null)} pendingImgs={pendingImgs} setPendingImgs={setPendingImgs}/>
+            : <CommandCenter agents={AGENTS} onSelect={setActiveId} onRunSystem={()=>setActiveId("system")}/>
         }
       </div>
     </div>
