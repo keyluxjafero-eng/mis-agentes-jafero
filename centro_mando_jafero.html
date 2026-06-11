@@ -1048,12 +1048,35 @@ function PublishBar({ content, msgIdx, agentId }) {
   const publish = async () => {
     setState("publishing");
     try {
+      // ── Limpiar HTML antes de publicar ──────────────────
+      // Parsear, quitar barra de edición y contenteditable
+      const parser  = new DOMParser();
+      const doc     = parser.parseFromString(content, "text/html");
+
+      // Quitar barra de edición (edit-bar y cualquier toolbar flotante)
+      doc.querySelectorAll(".edit-bar, .edit-toolbar, #editBar, #novaEditBar").forEach(el => el.remove());
+
+      // Quitar atributos contenteditable
+      doc.querySelectorAll("[contenteditable]").forEach(el => el.removeAttribute("contenteditable"));
+
+      // Quitar estilos del modo edición (outline dashed amarillo)
+      doc.querySelectorAll("style").forEach(styleEl => {
+        styleEl.textContent = styleEl.textContent
+          .replace(/\[contenteditable[^\]]*\]\s*\{[^}]*\}/g, "")
+          .replace(/\.edit-bar\s*\{[^}]*\}/g, "")
+          .replace(/\.edit-btn[^{]*\{[^}]*\}/g, "")
+          .replace(/\.btn-edit[^{]*\{[^}]*\}/g, "")
+          .replace(/\.btn-save[^{]*\{[^}]*\}/g, "");
+      });
+
+      const cleanHtml = "<!DOCTYPE html>" + doc.documentElement.outerHTML;
+
       // Extract slug from HTML comment or title
       let slug = "";
-      const slugMatch = content.match(/<!--\s*slug:\s*\/?([^\s>-][^\s>]*)\s*-->/i);
+      const slugMatch = cleanHtml.match(/<!--\s*slug:\s*\/?([^\s>-][^\s>]*)\s*-->/i);
       if (slugMatch) slug = slugMatch[1];
       else {
-        const titleMatch = content.match(/<title>([^<]{1,80})<\/title>/i);
+        const titleMatch = cleanHtml.match(/<title>([^<]{1,80})<\/title>/i);
         if (titleMatch) {
           slug = titleMatch[1].toLowerCase()
             .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
@@ -1065,7 +1088,7 @@ function PublishBar({ content, msgIdx, agentId }) {
       const res  = await fetch("/save-page", {
         method: "POST",
         headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({ slug, html: content })
+        body: JSON.stringify({ slug, html: cleanHtml })
       });
       const data = await res.json();
       if (data.ok) {
