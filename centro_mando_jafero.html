@@ -673,11 +673,35 @@ Conclusión directa: rentable o no. 3 acciones concretas por impacto. Sin jerga 
     role:"Dirección", task:"Coordinando el sistema completo...", status:"online",
     welcome:"Soy el cerebro del sistema. Cuéntame qué decisión tienes que tomar o qué no está funcionando.",
     suggestions:["Diagnostica mi negocio","¿Qué hago primero?","Toma esta decisión conmigo"],
-    prompt:`Eres CORE, estratega y director del sistema ecommerce.
-Tu misión: ver lo que el propietario no ve y tomar decisiones difíciles.
-Haces: diagnóstico de causa raíz, priorización con recursos limitados, decisiones con pros/contras/riesgos.
-Método: 20% de acciones que producen el 80% del resultado. Siempre termina con "Lo que haría yo: [acción]".
-Sin teoría. Sin generalidades. Solo lo accionable.` },
+    prompt:`Eres CORE, el Director y Orquestador de Mis Agentes Jafero.
+
+MODO PRODUCTO (cuando recibes imagen + texto):
+Tienes web search activado. Cuando el usuario te envíe una foto de producto con instrucciones:
+
+PASO 1 — IDENTIFICA el producto: nombre, categoría, uso, beneficios visibles en la imagen
+PASO 2 — BUSCA con web search: precio de coste en AliExpress, precio ideal de venta en España (x3-x4), tendencia en TikTok/Google
+PASO 3 — PREGUNTA (solo si no lo ha dicho): ¿Es para Zarviko (mascotas/hogar) o AERION FIT (fitness/ropa)?
+PASO 4 — GENERA directamente el HTML completo de la landing page:
+
+La landing debe ser BLANCA, LIMPIA y PROFESIONAL:
+- La imagen del usuario como hero principal
+- Thumbnails con imágenes limpias encontradas en la búsqueda web
+- Copy de alta conversión (título impactante + regalo GRATIS, precio con descuento 40-50%)
+- Sección problema/solución clara y directa
+- 3 beneficios concretos con datos reales
+- 3 reseñas creíbles con nombres y ciudades españolas
+- Selector de 3 packs (Básico / Premium★ / Kit Completo)
+- Botón "Comprar ahora" enlazado al checkout de Shopify:
+  · Zarviko: https://zarviko.com/cart/[variant_id]:1
+  · AERION FIT: https://twmi1f-ge.myshopify.com/cart/[variant_id]:1
+- Formulario de pedido
+- FAQ con preguntas específicas del producto
+- Barra de edición y publicación (edit bar) integrada
+
+REGLA: devuelve SOLO el HTML empezando con <!DOCTYPE html>. Sin texto antes ni después.
+
+MODO ESTRATEGIA (cuando no hay imagen):
+Actúas como director estratégico de ecommerce. Ayudas con nichos, productos ganadores, estrategia de Facebook Ads, análisis de competencia. Directo, accionable, sin teoría. Siempre terminas con "Lo que haría yo: [acción concreta]".` },
 
   { id:"pixel", avatar:"https://randomuser.me/api/portraits/women/68.jpg", name:"PIXEL", subtitle:"Editor Visual", initials:"PX", color:"#ec4899",
     role:"Construcción", task:"Editando imágenes y textos...", status:"online",
@@ -1270,13 +1294,75 @@ function PublishButton({ html, agentId }) {
     </div>
   );
 }
-function ChatView({ agent, messages, input, setInput, loading, onSend, onKey, endRef, onBack }) {
+function ChatView({ agent, messages, input, setInput, loading, onSend, onKey, endRef, onBack, pendingImgs, setPendingImgs }) {
   const taRef = useRef(null);
+
   useEffect(() => {
-    if (taRef.current) { taRef.current.style.height="auto"; taRef.current.style.height=Math.min(taRef.current.scrollHeight,130)+"px"; }
-  },[input]);
+    if (taRef.current) {
+      taRef.current.style.height = "auto";
+      taRef.current.style.height = Math.min(taRef.current.scrollHeight, 130) + "px";
+    }
+  }, [input]);
+
+  const readFile = (file) => {
+    if (!file || !file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setPendingImgs(prev => [...prev, {
+        preview: ev.target.result,
+        data: ev.target.result.split(",")[1],
+        type: file.type || "image/jpeg"
+      }]);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handlePaste = (e) => {
+    const items = e.clipboardData ? e.clipboardData.items : [];
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.startsWith("image/")) {
+        readFile(items[i].getAsFile());
+        e.preventDefault();
+      }
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const files = e.dataTransfer ? e.dataTransfer.files : [];
+    for (let i = 0; i < files.length; i++) readFile(files[i]);
+  };
+
+  const renderUserContent = (content) => {
+    if (typeof content === "string") return <span style={{ whiteSpace:"pre-wrap",wordBreak:"break-word" }}>{content}</span>;
+    const imgs = content.filter(c => c.type === "image");
+    const txt  = content.filter(c => c.type === "text").map(c => c.text).join("");
+    return (
+      <div>
+        {imgs.length > 0 && (
+          <div style={{ display:"flex",gap:4,flexWrap:"wrap",marginBottom: txt ? 6 : 0 }}>
+            {imgs.map((img, idx) => (
+              <img key={idx}
+                src={"data:" + img.source.media_type + ";base64," + img.source.data}
+                style={{ width:80,height:80,objectFit:"cover",borderRadius:8,border:"1px solid rgba(255,255,255,.2)" }} />
+            ))}
+          </div>
+        )}
+        {txt && <span style={{ whiteSpace:"pre-wrap",wordBreak:"break-word" }}>{txt}</span>}
+      </div>
+    );
+  };
+
+  const getContentStr = (content) => {
+    if (typeof content === "string") return content;
+    return content.filter(c => c.type === "text").map(c => c.text).join("");
+  };
+
+  const canSend = !loading && (input.trim().length > 0 || pendingImgs.length > 0);
+
   return (
-    <div style={{ flex:1,display:"flex",flexDirection:"column",background:"#002a6a",height:"100%" }}>
+    <div style={{ flex:1,display:"flex",flexDirection:"column",background:"#002a6a",height:"100%" }}
+      onDragOver={e => e.preventDefault()} onDrop={handleDrop}>
       <div style={{ background:"#002a6a",borderBottom:"1px solid rgba(0,127,255,0.25)",padding:"12px 18px",display:"flex",alignItems:"center",gap:10,flexShrink:0 }}>
         <button onClick={onBack} style={{ background:"none",border:"none",cursor:"pointer",color:"#7ab8ff",fontSize:20,padding:"0 8px 0 0" }}>←</button>
         {agent.avatar
@@ -1295,8 +1381,9 @@ function ChatView({ agent, messages, input, setInput, loading, onSend, onKey, en
           <span style={{ fontSize:9,color:agent.color,fontWeight:700 }}>Activo</span>
         </div>
       </div>
+
       <div style={{ flex:1,overflowY:"auto",padding:"16px 12px 12px",display:"flex",flexDirection:"column",gap:12 }}>
-        {messages.length===0 && (
+        {messages.length === 0 && (
           <div style={{ textAlign:"center",padding:"32px 20px",animation:"fadeIn 0.4s ease" }}>
             {agent.avatar
               ? <img src={agent.avatar} style={{ width:64,height:64,borderRadius:16,border:`1px solid ${agent.color}40`,background:agent.color+"18",display:"block",margin:"0 auto 12px",filter:`drop-shadow(0 0 12px ${agent.color}50)` }} />
@@ -1305,55 +1392,94 @@ function ChatView({ agent, messages, input, setInput, loading, onSend, onKey, en
             <div style={{ fontSize:16,fontWeight:800,color:"#f1f5f9",marginBottom:4 }}>{agent.name}</div>
             <div style={{ fontSize:11,color:agent.color,marginBottom:12 }}>{agent.subtitle}</div>
             <div style={{ fontSize:13,color:"#64748b",lineHeight:1.6,maxWidth:400,margin:"0 auto 22px" }}>{agent.welcome}</div>
+            {agent.id === "core" && (
+              <div style={{ fontSize:11,color:"#475569",margin:"0 auto 16px",maxWidth:360,
+                background:"rgba(0,127,255,.08)",border:"1px solid rgba(0,127,255,.2)",
+                borderRadius:10,padding:"8px 14px" }}>
+                📎 Arrastra o pega una foto del producto (Ctrl+V) y dime qué quieres vender
+              </div>
+            )}
             <div style={{ display:"flex",flexWrap:"wrap",gap:7,justifyContent:"center" }}>
-              {agent.suggestions.map(s=>(
-                <button key={s} onClick={()=>setInput(s)}
+              {agent.suggestions.map(s => (
+                <button key={s} onClick={() => setInput(s)}
                   style={{ fontSize:11,padding:"7px 14px",borderRadius:20,border:`1px solid ${agent.color}40`,background:agent.color+"0d",color:agent.color,cursor:"pointer",fontWeight:600 }}>{s}</button>
               ))}
             </div>
           </div>
         )}
-        {messages.map((m,i)=>(
-          <div key={i} style={{
-            display:"flex",
-            justifyContent: m.role==="user" ? "flex-end" : "flex-start",
-            gap:8, alignItems:"flex-end", animation:"fadeIn 0.2s ease",
-            width: (m.role==="assistant" && (m.content.trimStart().startsWith("<!") || m.content.includes("</html>"))) ? "100%" : "auto"
-          }}>
-            {m.role==="assistant" && <div style={{ width:26,height:26,borderRadius:6,background:agent.color+"18",display:"flex",alignItems:"center",justifyContent:"center",fontSize:7.5,fontWeight:800,color:agent.color,flexShrink:0,marginBottom:2,alignSelf:"flex-start",marginTop:4 }}>{agent.initials}</div>}
-            {m.role==="assistant" && (m.content.trimStart().startsWith("<!") || m.content.trimStart().startsWith("<html") || (m.content.trimStart().startsWith("<") && m.content.includes("</html>")))
-              ? <HtmlMessageBlock initialContent={m.content} agent={agent} msgIdx={i} />
-              : <div style={{ maxWidth:"75%",padding:"10px 14px",borderRadius:m.role==="user"?"14px 14px 3px 14px":"14px 14px 14px 3px",
-                  background:m.role==="user"?agent.color:"rgba(0,127,255,0.20)",
-                  border:m.role==="assistant"?`1px solid rgba(0,127,255,0.30)`:"none",
-                  color:m.role==="user"?"#fff":"#cbd5e1",fontSize:13,lineHeight:1.7,whiteSpace:"pre-wrap",wordBreak:"break-word" }}>{m.content}</div>
-            }
-          </div>
-        ))}
+
+        {messages.map((m, i) => {
+          const cStr = getContentStr(m.content);
+          const isHtml = m.role === "assistant" && (cStr.trimStart().startsWith("<!") || cStr.trimStart().startsWith("<html") || (cStr.trimStart().startsWith("<") && cStr.includes("</html>")));
+          return (
+            <div key={i} style={{
+              display:"flex",
+              justifyContent: m.role === "user" ? "flex-end" : "flex-start",
+              gap:8, alignItems:"flex-end", animation:"fadeIn 0.2s ease",
+              width: (m.role === "assistant" && isHtml) ? "100%" : "auto"
+            }}>
+              {m.role === "assistant" && (
+                <div style={{ width:26,height:26,borderRadius:6,background:agent.color+"18",display:"flex",alignItems:"center",justifyContent:"center",fontSize:7.5,fontWeight:800,color:agent.color,flexShrink:0,marginBottom:2,alignSelf:"flex-start",marginTop:4 }}>{agent.initials}</div>
+              )}
+              {m.role === "assistant" && isHtml
+                ? <HtmlMessageBlock initialContent={cStr} agent={agent} msgIdx={i} />
+                : <div style={{ maxWidth:"75%",padding:"10px 14px",
+                    borderRadius: m.role === "user" ? "14px 14px 3px 14px" : "14px 14px 14px 3px",
+                    background: m.role === "user" ? agent.color : "rgba(0,127,255,0.20)",
+                    border: m.role === "assistant" ? "1px solid rgba(0,127,255,0.30)" : "none",
+                    color: m.role === "user" ? "#fff" : "#cbd5e1",
+                    fontSize:13,lineHeight:1.7 }}>
+                    {m.role === "user" ? renderUserContent(m.content) : cStr}
+                  </div>
+              }
+            </div>
+          );
+        })}
+
         {loading && (
           <div style={{ display:"flex",gap:8,alignItems:"flex-end" }}>
             <div style={{ width:26,height:26,borderRadius:6,background:agent.color+"18",display:"flex",alignItems:"center",justifyContent:"center",fontSize:7.5,fontWeight:800,color:agent.color,flexShrink:0 }}>{agent.initials}</div>
             <div style={{ padding:"10px 14px",borderRadius:"14px 14px 14px 3px",background:"rgba(0,127,255,0.20)",border:"1px solid rgba(0,127,255,0.30)" }}>
               <div style={{ display:"flex",gap:5,alignItems:"center" }}>
-                {[0,1,2].map(i=><div key={i} style={{ width:7,height:7,borderRadius:"50%",background:agent.color,animation:`bounce 1.2s ease-in-out ${i*0.22}s infinite` }} />)}
+                {[0,1,2].map(j => <div key={j} style={{ width:7,height:7,borderRadius:"50%",background:agent.color,animation:`bounce 1.2s ease-in-out ${j*0.22}s infinite` }} />)}
               </div>
             </div>
           </div>
         )}
         <div ref={endRef}/>
       </div>
+
+      {/* Previews de imágenes pendientes */}
+      {pendingImgs.length > 0 && (
+        <div style={{ background:"#001a4a",borderTop:"1px solid rgba(0,127,255,.2)",
+          padding:"8px 16px",display:"flex",gap:8,flexWrap:"wrap" }}>
+          {pendingImgs.map((img, idx) => (
+            <div key={idx} style={{ position:"relative" }}>
+              <img src={img.preview} style={{ width:56,height:56,objectFit:"cover",borderRadius:8,border:"1px solid rgba(0,127,255,.4)" }} />
+              <button onClick={() => setPendingImgs(prev => prev.filter((_,j) => j !== idx))}
+                style={{ position:"absolute",top:-5,right:-5,width:18,height:18,borderRadius:"50%",background:"#ef4444",border:"none",color:"#fff",fontSize:11,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",lineHeight:1 }}>×</button>
+            </div>
+          ))}
+          <div style={{ fontSize:10,color:"#64748b",alignSelf:"center" }}>{pendingImgs.length} imagen{pendingImgs.length > 1 ? "es" : ""} lista{pendingImgs.length > 1 ? "s" : ""}</div>
+        </div>
+      )}
+
+      {/* Input area */}
       <div style={{ background:"#002a6a",borderTop:"1px solid rgba(0,127,255,0.25)",padding:"10px 16px",display:"flex",gap:8,alignItems:"flex-end",flexShrink:0 }}>
-        <textarea ref={taRef} value={input} onChange={e=>setInput(e.target.value)} onKeyDown={onKey}
-          placeholder={`Escríbele a ${agent.name}... (Enter para enviar)`} disabled={loading} rows={1}
-          style={{ flex:1,border:`1px solid ${agent.color}25`,borderRadius:10,padding:"10px 13px",fontSize:13,resize:"none",fontFamily:"inherit",lineHeight:1.5,background:"rgba(0,127,255,0.25)",color:"#e2e8f0",overflow:"hidden" }}/>
-        <button onClick={onSend} disabled={loading||!input.trim()}
-          style={{ padding:"10px 20px",borderRadius:10,border:"none",background:loading||!input.trim()?"#5a9fe0":agent.color,color:loading||!input.trim()?"#7ab8ff":"#fff",fontSize:13,fontWeight:700,cursor:loading||!input.trim()?"not-allowed":"pointer",flexShrink:0,transition:"all 0.15s",boxShadow:(!loading&&input.trim())?`0 0 12px ${agent.color}40`:"none" }}>
+        <textarea ref={taRef} value={input} onChange={e => setInput(e.target.value)}
+          onKeyDown={onKey} onPaste={handlePaste}
+          placeholder={agent.id === "core" ? "Describe el producto o pega/arrastra una foto (Ctrl+V)..." : `Escríbele a ${agent.name}... (Enter para enviar)`}
+          disabled={loading} rows={1}
+          style={{ flex:1,border:`1px solid ${agent.color}25`,borderRadius:10,padding:"10px 13px",fontSize:13,resize:"none",fontFamily:"inherit",lineHeight:1.5,background:"rgba(0,127,255,0.25)",color:"#e2e8f0",overflow:"hidden" }} />
+        <button onClick={onSend} disabled={!canSend}
+          style={{ padding:"10px 20px",borderRadius:10,border:"none",background:canSend ? agent.color : "#5a9fe0",color:canSend ? "#fff" : "#7ab8ff",fontSize:13,fontWeight:700,cursor:canSend ? "pointer" : "not-allowed",flexShrink:0,transition:"all 0.15s",boxShadow:canSend ? `0 0 12px ${agent.color}40` : "none" }}>
           Enviar
         </button>
       </div>
     </div>
   );
 }
+
 
 /* ═══════════════════════ SYSTEM VIEW ═══════════════════════ */
 const PIPELINE_META=[
@@ -1532,43 +1658,63 @@ Español de España. Sin clichés. Solo accionable.`;
 function App() {
   const [activeId,setActiveId]=useState(null);
   const [convs,   setConvs]   =useState({});
-  const [input,   setInput]   =useState("");
-  const [loading, setLoading] =useState(false);
-  const endRef=useRef(null);
-  const msgs=activeId?(convs[activeId]||[]):[];
-  useEffect(()=>{endRef.current && endRef.current.scrollIntoView({behavior:"smooth"});},[msgs,loading]);
+  const [input,   setInput]   = useState("");
+  const [loading, setLoading] = useState(false);
+  const [pendingImgs, setPendingImgs] = useState([]);
+  const endRef = useRef(null);
+  const msgs = activeId ? (convs[activeId] || []) : [];
+  useEffect(() => { if (endRef.current) endRef.current.scrollIntoView({behavior:"smooth"}); }, [msgs, loading]);
 
-  const send=async()=>{
-    if(!input.trim()||loading||!activeId) return;
-    const agent=AGENTS.find(a=>a.id===activeId);
-    const userMsg={role:"user",content:input.trim()};
-    const updated=[...msgs,userMsg];
-    setConvs(p=>({...p,[activeId]:updated}));
-    setInput(""); setLoading(true);
+  const send = async () => {
+    const hasText = input.trim().length > 0;
+    const hasImgs = pendingImgs.length > 0;
+    if ((!hasText && !hasImgs) || loading || !activeId) return;
+    const agent = AGENTS.find(a => a.id === activeId);
+
+    // Build message content (string or array with images)
+    let msgContent;
+    if (hasImgs) {
+      msgContent = [
+        ...pendingImgs.map(img => ({
+          type: "image",
+          source: { type: "base64", media_type: img.type, data: img.data }
+        })),
+        { type: "text", text: hasText ? input.trim() : "Analiza este producto y genera la landing page completa para venderlo." }
+      ];
+    } else {
+      msgContent = input.trim();
+    }
+
+    const userMsg = { role: "user", content: msgContent };
+    const updated = [...msgs, userMsg];
+    setConvs(p => ({...p, [activeId]: updated}));
+    setInput("");
+    setPendingImgs([]);
+    setLoading(true);
     try {
-      const res=await fetch("/api",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:8000,system:agent.prompt,messages:updated,agentId:agent.id})});
-      const data=await res.json();
-      const aiMsg={role:"assistant",content:data.response||"Error al generar respuesta."};
-      setConvs(p=>({...p,[activeId]:[...updated,aiMsg]}));
+      const res = await fetch("/api", {method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({model:"claude-haiku-4-5-20251001", max_tokens:8000, system:agent.prompt, messages:updated, agentId:agent.id})});
+      const data = await res.json();
+      const aiMsg = { role:"assistant", content: data.response || "Error al generar respuesta." };
+      setConvs(p => ({...p, [activeId]: [...updated, aiMsg]}));
     } catch(e) {
-      setConvs(p=>({...p,[activeId]:[...updated,{role:"assistant",content:"Error de conexión."}]}));
+      setConvs(p => ({...p, [activeId]: [...updated, {role:"assistant", content:"Error de conexión."}]}));
     }
     setLoading(false);
   };
 
-  const handleKey=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}};
-  const agent=activeId?AGENTS.find(a=>a.id===activeId):null;
+  const handleKey = e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } };
+  const agent = activeId ? AGENTS.find(a => a.id === activeId) : null;
 
   return (
     <div style={{ display:"flex",width:"100%",height:"100vh",overflow:"hidden" }}>
-      <Sidebar agents={AGENTS} activeId={activeId} onSelect={setActiveId} onHome={()=>setActiveId(null)}/>
+      <Sidebar agents={AGENTS} activeId={activeId} onSelect={id => { setPendingImgs([]); setActiveId(id); }} onHome={() => setActiveId(null)}/>
       <div style={{ flex:1,display:"flex",flexDirection:"column",minWidth:0,height:"100%" }}>
-        {activeId==="system"
-          ? <SystemView onBack={()=>setActiveId(null)}/>
+        {activeId === "system"
+          ? <SystemView onBack={() => setActiveId(null)}/>
           : agent
-            ? <ChatView agent={agent} messages={msgs} input={input} setInput={setInput} loading={loading} onSend={send} onKey={handleKey} endRef={endRef} onBack={()=>setActiveId(null)}/>
-            : <CommandCenter agents={AGENTS} onSelect={setActiveId} onRunSystem={()=>setActiveId("system")}/>
+            ? <ChatView agent={agent} messages={msgs} input={input} setInput={setInput} loading={loading} onSend={send} onKey={handleKey} endRef={endRef} onBack={() => setActiveId(null)} pendingImgs={pendingImgs} setPendingImgs={setPendingImgs}/>
+            : <CommandCenter agents={AGENTS} onSelect={setActiveId} onRunSystem={() => setActiveId("system")}/>
         }
       </div>
     </div>
