@@ -4,7 +4,7 @@ import json, urllib.request, urllib.error, os, re, time
 API_KEY   = os.getenv("ANTHROPIC_API_KEY", "")
 PORT      = int(os.getenv("PORT", 10000))
 MODEL     = "claude-haiku-4-5-20251001"
-WEB_SEARCH_AGENTS = {"atlas", "nexo"}
+WEB_SEARCH_AGENTS = {"atlas", "nexo", "core"}
 
 # Almacenamiento de landing pages en memoria + disco
 PAGES     = {}          # slug -> html
