@@ -746,20 +746,21 @@ Devuelve SOLO el HTML sin texto adicional.` },
 /* ═══════════════════════ POSICIONES RED ═══════════════════════ */
 // CORE en el centro, 7 agentes en círculo
 const NODE_POSITIONS = {
-  core   : { cx:400, cy:252 },
-  atlas  : { cx:400, cy:78  },
-  nova   : { cx:568, cy:152 },
-  voltio : { cx:620, cy:300 },
-  pluma  : { cx:513, cy:422 },
-  nexo   : { cx:287, cy:422 },
-  aria   : { cx:180, cy:300 },
-  system : { cx:232, cy:152 },
+  core   : { cx:400, cy:260 },
+  atlas  : { cx:400, cy:70  },
+  nova   : { cx:577, cy:122 },
+  pixel  : { cx:638, cy:260 },
+  voltio : { cx:577, cy:398 },
+  pluma  : { cx:400, cy:450 },
+  nexo   : { cx:223, cy:398 },
+  aria   : { cx:162, cy:260 },
+  system : { cx:223, cy:122 },
 };
 
 const CONNECTIONS = [
-  ["core","atlas"],["core","nova"],["core","voltio"],["core","pluma"],
+  ["core","atlas"],["core","nova"],["core","pixel"],["core","voltio"],["core","pluma"],
   ["core","nexo"],["core","aria"],["core","system"],
-  ["atlas","nova"],["nova","voltio"],["voltio","pluma"],
+  ["atlas","nova"],["nova","pixel"],["pixel","voltio"],["voltio","pluma"],
   ["pluma","nexo"],["nexo","aria"],["aria","system"],["system","atlas"]
 ];
 
@@ -1664,6 +1665,12 @@ function App() {
   useEffect(() => { if (endRef.current) endRef.current.scrollIntoView({behavior:"smooth"}); }, [msgs, loading]);
 
   // ── Pipeline CORE: ATLAS → PLUMA → NOVA ────────────────────
+  const cleanJSON = (raw) => {
+    let s = raw.split(String.fromCharCode(96)).join("").trim();
+    if (s.toLowerCase().indexOf("json") === 0) s = s.slice(4);
+    return s.trim();
+  };
+
   const runCorePipeline = async (imgArr, textPrompt) => {
     const addMsg = (content) => {
       setConvs(p => { const c=p.core||[]; return {...p, core:[...c,{role:"assistant",content}]}; });
@@ -1692,17 +1699,17 @@ function App() {
     ] : textPrompt;
     let atlasRaw = await callAPI("Analista productos ecommerce España. Devuelve SOLO JSON válido. Precio venta = coste x3-x4. Regalo = accesorio lógico complementario.", ac, "atlas", 1000);
     let P = {};
-    try { P=JSON.parse(atlasRaw.replace(/```json|```/g,"").trim()); } catch(e) { P={nombre:"Producto",precio_venta:"19,99€",precio_tachado:"34,99€",descuento:"43%",regalo:"Accesorio GRATIS",valor_regalo:"9,99€",viral_en:"TikTok",problema:"El problema principal",solucion:"La solución"}; }
+    try { P=JSON.parse(cleanJSON(atlasRaw)); } catch(e) { P={nombre:"Producto",precio_venta:"19,99€",precio_tachado:"34,99€",descuento:"43%",regalo:"Accesorio GRATIS",valor_regalo:"9,99€",viral_en:"TikTok",problema:"El problema principal",solucion:"La solución"}; }
     updateLast("🔍 **PASO 1/3 — ATLAS** ✅  Producto: **"+(P.nombre||"Producto")+"** · "+(P.precio_venta||"19,99€")+" · Viral en "+(P.viral_en||"TikTok/Instagram"));
 
     // PASO 2: PLUMA
     addMsg("✍️ **PASO 2/3 — PLUMA** escribiendo el copy de conversión...");
     let plumaRaw = await callAPI(
-      "Copywriter ecommerce España. Devuelve SOLO JSON válido: {"titulo":"TÍTULO EN MAYÚSCULAS","hook":"gancho","problemas":["p1","p2","p3","p4"],"solucion":"2 frases","beneficios":[{"emoji":"🔥","titulo":"t","desc":"desc con dato"},{"emoji":"💧","titulo":"t","desc":"desc"},{"emoji":"🛡️","titulo":"t","desc":"desc"}],"resenas":[{"texto":"reseña detallada creíble","autor":"Nombre A.","ciudad":"Ciudad","dias":5},{"texto":"reseña 2","autor":"Nombre B.","ciudad":"Ciudad","dias":8},{"texto":"reseña 3","autor":"Nombre C.","ciudad":"Ciudad","dias":3}],"faq":[{"q":"pregunta","a":"respuesta"},{"q":"pregunta2","a":"respuesta2"}],"urgencia":"texto urgencia corto"}",
+      'Copywriter ecommerce España. Devuelve SOLO JSON válido: {"titulo":"TÍTULO EN MAYÚSCULAS","hook":"gancho","problemas":["p1","p2","p3","p4"],"solucion":"2 frases","beneficios":[{"emoji":"🔥","titulo":"t","desc":"desc con dato"},{"emoji":"💧","titulo":"t","desc":"desc"},{"emoji":"🛡️","titulo":"t","desc":"desc"}],"resenas":[{"texto":"reseña detallada creíble","autor":"Nombre A.","ciudad":"Ciudad","dias":5},{"texto":"reseña 2","autor":"Nombre B.","ciudad":"Ciudad","dias":8},{"texto":"reseña 3","autor":"Nombre C.","ciudad":"Ciudad","dias":3}],"faq":[{"q":"pregunta","a":"respuesta"},{"q":"pregunta2","a":"respuesta2"}],"urgencia":"texto urgencia corto"}',
       "Datos producto: "+JSON.stringify(P)+"\nTienda: "+storeName, "pluma", 2000
     );
     let C = {};
-    try { C=JSON.parse(plumaRaw.replace(/```json|```/g,"").trim()); } catch(e) { C={titulo:"PRODUCTO IMPRESCINDIBLE",hook:"El que todos necesitan",problemas:["Problema 1","Problema 2","Problema 3","Problema 4"],solucion:"La solución definitiva.",beneficios:[{emoji:"🔥",titulo:"Beneficio 1",desc:"Descripción concreta"},{emoji:"💧",titulo:"Beneficio 2",desc:"Descripción"},{emoji:"🛡️",titulo:"Beneficio 3",desc:"Descripción"}],resenas:[{texto:"Excelente",autor:"María G.",ciudad:"Madrid",dias:5},{texto:"Muy recomendable",autor:"Carlos R.",ciudad:"Barcelona",dias:8},{texto:"Lo mejor",autor:"Laura M.",ciudad:"Valencia",dias:3}],faq:[{q:"¿Cuánto tarda el envío?",a:"24-72h en toda España."},{q:"¿Puedo devolver?",a:"Sí, 30 días."}],urgencia:"Oferta limitada"}; }
+    try { C=JSON.parse(cleanJSON(plumaRaw)); } catch(e) { C={titulo:"PRODUCTO IMPRESCINDIBLE",hook:"El que todos necesitan",problemas:["Problema 1","Problema 2","Problema 3","Problema 4"],solucion:"La solución definitiva.",beneficios:[{emoji:"🔥",titulo:"Beneficio 1",desc:"Descripción concreta"},{emoji:"💧",titulo:"Beneficio 2",desc:"Descripción"},{emoji:"🛡️",titulo:"Beneficio 3",desc:"Descripción"}],resenas:[{texto:"Excelente",autor:"María G.",ciudad:"Madrid",dias:5},{texto:"Muy recomendable",autor:"Carlos R.",ciudad:"Barcelona",dias:8},{texto:"Lo mejor",autor:"Laura M.",ciudad:"Valencia",dias:3}],faq:[{q:"¿Cuánto tarda el envío?",a:"24-72h en toda España."},{q:"¿Puedo devolver?",a:"Sí, 30 días."}],urgencia:"Oferta limitada"}; }
     updateLast("✍️ **PASO 2/3 — PLUMA** ✅  Copy listo: \""+C.titulo+"\"");
 
     // PASO 3: NOVA
